@@ -27,8 +27,8 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 
 ## 📊 Progression
 
-**Modules complétés (10/14):**
-1. ✅ **Auth** - Authentification JWT
+**Modules complétés (11/14):**
+1. ✅ **Auth** - Authentification JWT avec guards, decorators et stratégies
 2. ✅ **Users** - Gestion des utilisateurs
 3. ✅ **Customers** - Gestion des clients
 4. ✅ **Products** - Gestion des produits avec BOM
@@ -38,6 +38,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 8. ✅ **DeliveryNotes** - Bons de livraison avec regroupement d'OFs et gestion de statut
 9. ✅ **Configuration** - MongoDB, rate limiting, sécurité
 10. ✅ **Structure** - Architecture du projet
+11. ✅ **Auth Module** - Module d'authentification complet
 
 **Modules restants:**
 1. **Invoices** - Factures avec regroupement de BLs
@@ -92,7 +93,7 @@ POST /api/quotes/:id/convert-to-order
 
 | Module | Endpoints |
 |--------|-----------|
-| **Auth** | `POST /auth/login`, `POST /auth/register`, `GET /auth/me` |
+| **Auth** | `POST /auth/login`, `POST /auth/register`, `GET /auth/me`, `PATCH /auth/change-password`, `POST /auth/reset-password` |
 | **Users** | CRUD + `POST /users/invite` |
 | **Customers** | CRUD + search + payment terms |
 | **Products** | CRUD + BOM + stock management + low-stock alerts |
