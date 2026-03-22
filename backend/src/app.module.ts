@@ -20,6 +20,7 @@ import { DeliveryNotesModule } from './delivery-notes/delivery-notes.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CountersModule } from './counters/counters.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
+import { CreditNotesModule } from './credit-notes/credit-notes.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     InvoicesModule,
     CountersModule,
     SuppliersModule,
+    CreditNotesModule,
   ],
   controllers: [],
   providers: [
