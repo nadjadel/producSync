@@ -1,42 +1,51 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Body, Get, UseGuards, Patch, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
-import { Public } from './decorators/public.decorator';
+import { RegisterDto, LoginDto } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { UserDocument } from '../users/schemas/user.schema';
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
   @Post('register')
-  @ApiOperation({ summary: 'Créer un nouveau compte utilisateur' })
-  @ApiResponse({ status: 201, description: 'Utilisateur créé avec succès' })
-  @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
   @Public()
   @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Connexion utilisateur' })
-  @ApiResponse({ status: 200, description: 'Connexion réussie' })
-  @ApiResponse({ status: 401, description: 'Identifiants incorrects' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
-  @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Récupérer les informations de l\'utilisateur connecté' })
-  @ApiResponse({ status: 200, description: 'Informations utilisateur' })
-  @ApiResponse({ status: 401, description: 'Non authentifié' })
-  async getMe(@CurrentUser('id') userId: string) {
-    return this.authService.getMe(userId);
+  @Get('me')
+  async getProfile(@CurrentUser() user: UserDocument) {
+    return this.authService.getProfile(user._id.toString());
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('change-password')
+  async changePassword(
+    @CurrentUser() user: UserDocument,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ) {
+    await this.authService.changePassword(
+      user._id.toString(),
+      body.oldPassword,
+      body.newPassword,
+    );
+    return { message: 'Mot de passe modifié avec succès' };
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(@Body() body: { email: string; newPassword: string }) {
+    await this.authService.resetPassword(body.email, body.newPassword);
+    return { message: 'Mot de passe réinitialisé avec succès' };
   }
 }
