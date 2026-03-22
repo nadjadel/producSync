@@ -217,10 +217,10 @@ PORT=3000
 
 ## ✅ Checklist d'implémentation
 
-- [ ] Structure du projet backend
-- [ ] Configuration MongoDB
-- [ ] Module Auth (JWT)
-- [ ] Module Users
+- [x] Structure du projet backend
+- [x] Configuration MongoDB
+- [x] Module Auth (JWT)
+- [x] Module Users
 - [ ] Module Customers
 - [ ] Module Products
 - [ ] Module Orders (+ flux OF)
