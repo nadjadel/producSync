@@ -17,6 +17,7 @@ import { OrdersModule } from './orders/orders.module';
 import { QuotesModule } from './quotes/quotes.module';
 import { ManufacturingOrdersModule } from './manufacturing-orders/manufacturing-orders.module';
 import { DeliveryNotesModule } from './delivery-notes/delivery-notes.module';
+import { InvoicesModule } from './invoices/invoices.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { DeliveryNotesModule } from './delivery-notes/delivery-notes.module';
     QuotesModule,
     ManufacturingOrdersModule,
     DeliveryNotesModule,
+    InvoicesModule,
   ],
   controllers: [],
   providers: [
