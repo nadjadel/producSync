@@ -21,6 +21,7 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { CountersModule } from './counters/counters.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { CreditNotesModule } from './credit-notes/credit-notes.module';
+import { WorkstationsModule } from './workstations/workstations.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { CreditNotesModule } from './credit-notes/credit-notes.module';
     CountersModule,
     SuppliersModule,
     CreditNotesModule,
+    WorkstationsModule,
   ],
   controllers: [],
   providers: [
