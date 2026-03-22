@@ -19,6 +19,7 @@ import { ManufacturingOrdersModule } from './manufacturing-orders/manufacturing-
 import { DeliveryNotesModule } from './delivery-notes/delivery-notes.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { CountersModule } from './counters/counters.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { CountersModule } from './counters/counters.module';
     DeliveryNotesModule,
     InvoicesModule,
     CountersModule,
+    SuppliersModule,
   ],
   controllers: [],
   providers: [
