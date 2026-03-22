@@ -15,7 +15,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 - [x] Module Customers
 - [x] Module Products
 - [x] Module Orders (+ flux OF)
-- [ ] Module Quotes (+ conversion)
+- [x] Module Quotes (+ conversion)
 - [ ] Module ManufacturingOrders
 - [ ] Module DeliveryNotes (+ regroupement)
 - [ ] Module Invoices (+ regroupement)
@@ -27,25 +27,25 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 
 ## 📊 Progression
 
-**Modules complétés (7/14):**
+**Modules complétés (8/14):**
 1. ✅ **Auth** - Authentification JWT
 2. ✅ **Users** - Gestion des utilisateurs
 3. ✅ **Customers** - Gestion des clients
 4. ✅ **Products** - Gestion des produits avec BOM
 5. ✅ **Orders** - Commandes clients avec calcul automatique des totaux
-6. ✅ **Configuration** - MongoDB, rate limiting, sécurité
-7. ✅ **Structure** - Architecture du projet
+6. ✅ **Quotes** - Devis avec conversion en commandes et expiration
+7. ✅ **Configuration** - MongoDB, rate limiting, sécurité
+8. ✅ **Structure** - Architecture du projet
 
 **Modules restants:**
-1. **Quotes** - Devis avec conversion en commandes
-2. **ManufacturingOrders** - Ordres de fabrication
-3. **DeliveryNotes** - Bons de livraison avec regroupement d'OFs
-4. **Invoices** - Factures avec regroupement de BLs
-5. **CreditNotes** - Avoirs
-6. **Workstations** - Postes de travail
-7. **StockMovements** - Mouvements de stock
-8. **Suppliers** - Fournisseurs/sous-traitants
-9. **Counters** - Compteurs pour numérotation
+1. **ManufacturingOrders** - Ordres de fabrication
+2. **DeliveryNotes** - Bons de livraison avec regroupement d'OFs
+3. **Invoices** - Factures avec regroupement de BLs
+4. **CreditNotes** - Avoirs
+5. **Workstations** - Postes de travail
+6. **StockMovements** - Mouvements de stock
+7. **Suppliers** - Fournisseurs/sous-traitants
+8. **Counters** - Compteurs pour numérotation
 
 ---
 
@@ -97,7 +97,7 @@ POST /api/quotes/:id/convert-to-order
 | **Customers** | CRUD + search + payment terms |
 | **Products** | CRUD + BOM + stock management + low-stock alerts |
 | **Orders** | CRUD + status management + totals calculation |
-| **Quotes** | À implémenter |
+| **Quotes** | CRUD + conversion to orders + expiration tracking |
 | **ManufacturingOrders** | À implémenter |
 | **DeliveryNotes** | À implémenter |
 | **Invoices** | À implémenter |
@@ -132,6 +132,7 @@ git merge --no-ff feature/[module]-module
 - ✅ `feature/customers-module`
 - ✅ `feature/products-module`
 - ✅ `feature/orders-module`
+- ✅ `feature/quotes-module`
 
 ---
 
