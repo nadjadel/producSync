@@ -1,0 +1,139 @@
+{
+  "name": "ManufacturingOrder",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de l'ordre de fabrication"
+    },
+    "customer_order_id": {
+      "type": "string",
+      "description": "ID de la commande client d'origine"
+    },
+    "customer_order_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de commande client"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "ID du produit \u00e0 fabriquer"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Nom du produit"
+    },
+    "quantity_planned": {
+      "type": "number",
+      "description": "Quantit\u00e9 planifi\u00e9e"
+    },
+    "quantity_produced": {
+      "type": "number",
+      "description": "Quantit\u00e9 produite"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "planned",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "description": "Statut de l'OF"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "description": "Priorit\u00e9"
+    },
+    "workstation_id": {
+      "type": "string",
+      "description": "ID du poste de travail"
+    },
+    "workstation_name": {
+      "type": "string",
+      "description": "Nom du poste de travail"
+    },
+    "planned_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de d\u00e9but planifi\u00e9e"
+    },
+    "planned_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de fin planifi\u00e9e"
+    },
+    "actual_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de d\u00e9but r\u00e9elle"
+    },
+    "actual_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de fin r\u00e9elle"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes et commentaires"
+    },
+    "ready_for_delivery": {
+      "type": "boolean",
+      "default": false,
+      "description": "Pr\u00eat pour la livraison"
+    },
+    "delivered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Livr\u00e9"
+    },
+    "delivery_note_id": {
+      "type": "string",
+      "description": "ID du bon de livraison"
+    },
+    "is_subcontracted": {
+      "type": "boolean",
+      "default": false,
+      "description": "OF en sous-traitance"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "ID du fournisseur sous-traitant"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Nom du fournisseur sous-traitant"
+    },
+    "subcontract_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de sous-traitance (ST + 8 chiffres)"
+    },
+    "subcontract_sent_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date d'envoi en sous-traitance"
+    },
+    "subcontract_expected_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de retour pr\u00e9vue"
+    },
+    "subcontract_unit_price": {
+      "type": "number",
+      "description": "Prix unitaire de sous-traitance"
+    }
+  },
+  "required": [
+    "order_number",
+    "product_id",
+    "product_name",
+    "quantity_planned",
+    "status"
+  ]
+}

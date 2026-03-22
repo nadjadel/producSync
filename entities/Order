@@ -1,0 +1,98 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de commande"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "ID du client"
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Nom du client"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "confirmed",
+        "in_production",
+        "ready",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "draft",
+      "description": "Statut de la commande"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de commande"
+    },
+    "delivery_date_requested": {
+      "type": "string",
+      "format": "date",
+      "description": "Date de livraison souhait\u00e9e"
+    },
+    "items": {
+      "type": "array",
+      "description": "Lignes de commande",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "product_reference": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_ht": {
+      "type": "number",
+      "description": "Total HT"
+    },
+    "vat_rate": {
+      "type": "number",
+      "default": 20,
+      "description": "Taux de TVA (%)"
+    },
+    "total_vat": {
+      "type": "number",
+      "description": "Montant TVA"
+    },
+    "total_ttc": {
+      "type": "number",
+      "description": "Total TTC"
+    },
+    "delivery_address": {
+      "type": "string",
+      "description": "Adresse de livraison"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "order_number",
+    "customer_id",
+    "customer_name"
+  ]
+}

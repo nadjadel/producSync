@@ -1,0 +1,84 @@
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Code fournisseur (3 lettres unique)"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Raison sociale"
+    },
+    "siret": {
+      "type": "string",
+      "description": "Num\u00e9ro SIRET"
+    },
+    "vat_number": {
+      "type": "string",
+      "description": "Num\u00e9ro de TVA intracommunautaire"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Nom du contact principal"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "T\u00e9l\u00e9phone"
+    },
+    "address": {
+      "type": "string",
+      "description": "Adresse compl\u00e8te"
+    },
+    "postal_code": {
+      "type": "string",
+      "description": "Code postal"
+    },
+    "city": {
+      "type": "string",
+      "description": "Ville"
+    },
+    "country": {
+      "type": "string",
+      "description": "Pays",
+      "default": "France"
+    },
+    "speciality": {
+      "type": "string",
+      "description": "Sp\u00e9cialit\u00e9 / type de sous-traitance"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Statut du fournisseur"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "30_days",
+        "45_days",
+        "60_days",
+        "cash",
+        "end_of_month"
+      ],
+      "default": "30_days",
+      "description": "Conditions de paiement"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes internes"
+    }
+  },
+  "required": [
+    "company_name",
+    "email"
+  ]
+}

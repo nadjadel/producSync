@@ -1,0 +1,89 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "reference": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence unique du produit (CODE_CLIENT + num\u00e9ro)"
+    },
+    "customer_id": {
+      "type": "string",
+      "description": "ID du client propri\u00e9taire"
+    },
+    "customer_code": {
+      "type": "string",
+      "description": "Code du client (3 lettres)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nom du produit"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description du produit"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "matiere_premiere",
+        "semi_fini",
+        "produit_fini"
+      ],
+      "description": "Type de produit"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "piece",
+        "kg",
+        "litre",
+        "metre"
+      ],
+      "description": "Unit\u00e9 de mesure"
+    },
+    "stock_quantity": {
+      "type": "number",
+      "description": "Quantit\u00e9 en stock"
+    },
+    "stock_minimum": {
+      "type": "number",
+      "description": "Stock minimum d'alerte"
+    },
+    "cost_price": {
+      "type": "number",
+      "description": "Prix de revient"
+    },
+    "sell_price": {
+      "type": "number",
+      "description": "Prix de vente"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Image du produit"
+    },
+    "bom": {
+      "type": "array",
+      "description": "Nomenclature (Bill of Materials)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "reference",
+    "name",
+    "category",
+    "unit"
+  ]
+}

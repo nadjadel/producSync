@@ -1,0 +1,41 @@
+{
+  "name": "Workstation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nom du poste de travail"
+    },
+    "code": {
+      "type": "string",
+      "description": "Code du poste"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "busy",
+        "maintenance",
+        "offline"
+      ],
+      "description": "Statut du poste"
+    },
+    "capacity_per_hour": {
+      "type": "number",
+      "description": "Capacit\u00e9 par heure"
+    },
+    "current_order_id": {
+      "type": "string",
+      "description": "OF en cours"
+    }
+  },
+  "required": [
+    "name",
+    "code",
+    "status"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Nom complet de l'utilisateur"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "Administrator",
+        "User"
+      ],
+      "description": "Rôle de l'utilisateur"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Actif",
+        "Inactif"
+         ],
+      "description": "Statut de l'utilisateur"
+    }
+  },
+  "required": [
+    "full name",
+    "email",
+    "role",
+    "status"
+  ]
+}
