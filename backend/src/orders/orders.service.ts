@@ -8,16 +8,33 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<OrderDocument> {
-    // Si order_number n'est pas fourni, on le générera plus tard via CounterService
-    const order = new this.orderModel(createOrderDto);
+    // TOUJOURS générer un numéro de commande automatiquement
+    const generatedOrderNumber = await this.countersService.getNextNumber('CO');
+    
+    // Vérifier l'unicité du numéro (au cas où)
+    const existingOrder = await this.orderModel.findOne({
+      order_number: generatedOrderNumber,
+    }).exec();
+
+    if (existingOrder) {
+      throw new ConflictException(`Le numéro de commande ${generatedOrderNumber} est déjà utilisé`);
+    }
+
+    // Créer la commande avec le numéro généré automatiquement
+    const order = new this.orderModel({
+      ...createOrderDto,
+      order_number: generatedOrderNumber, // Toujours utiliser le numéro généré
+    });
     
     // Calculer les totaux
     this.calculateTotals(order);
@@ -49,14 +66,9 @@ export class OrdersService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto): Promise<OrderDocument> {
+    // NE PAS permettre la modification du numéro de commande
     if (updateOrderDto.order_number) {
-      const existingOrder = await this.orderModel.findOne({
-        order_number: updateOrderDto.order_number,
-        _id: { $ne: id },
-      }).exec();
-      if (existingOrder) {
-        throw new ConflictException('Une commande avec ce numéro existe déjà');
-      }
+      delete updateOrderDto.order_number; // Supprimer le numéro de la mise à jour
     }
 
     const order = await this.orderModel

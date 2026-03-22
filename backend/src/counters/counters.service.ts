@@ -9,6 +9,9 @@ export class CountersService {
     @InjectModel(Counter.name) private counterModel: Model<CounterDocument>,
   ) {}
 
+  /**
+   * Initialise un compteur s'il n'existe pas déjà
+   */
   async initializeCounter(counterType: string, format?: string): Promise<CounterDocument> {
     const existingCounter = await this.counterModel.findOne({ counter_type: counterType }).exec();
     
@@ -42,13 +45,17 @@ export class CountersService {
     return counter.save();
   }
 
+  /**
+   * Génère le prochain numéro pour une typologie donnée
+   * Le numéro est incrémenté automatiquement et sauvegardé
+   */
   async getNextNumber(counterType: string): Promise<string> {
     const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
     
     if (!counter) {
       // Initialiser le compteur s'il n'existe pas
       const newCounter = await this.initializeCounter(counterType);
-      return this.generateNumber(newCounter);
+      return this.generateAndSaveNumber(newCounter);
     }
 
     // Vérifier si on doit réinitialiser pour la nouvelle année
@@ -63,15 +70,24 @@ export class CountersService {
       throw new ConflictException(`Le compteur ${counterType} a atteint son maximum (${counter.max_number})`);
     }
 
-    return this.generateNumber(counter);
+    return this.generateAndSaveNumber(counter);
   }
 
-  private async generateNumber(counter: CounterDocument): Promise<string> {
+  /**
+   * Génère et sauvegarde le numéro (incrémente le compteur)
+   */
+  private async generateAndSaveNumber(counter: CounterDocument): Promise<string> {
     // Incrémenter le compteur
     counter.last_number += counter.increment;
     await counter.save();
 
-    // Générer le numéro formaté
+    return this.formatNumber(counter);
+  }
+
+  /**
+   * Formate le numéro selon le format du compteur
+   */
+  private formatNumber(counter: CounterDocument): string {
     const now = new Date();
     const year = now.getFullYear().toString();
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -91,6 +107,47 @@ export class CountersService {
     return formattedNumber;
   }
 
+  /**
+   * Génère un aperçu du prochain numéro sans incrémenter le compteur
+   */
+  async getNextNumberPreview(counterType: string): Promise<string> {
+    const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
+    
+    if (!counter) {
+      const newCounter = await this.initializeCounter(counterType);
+      return this.formatPreviewNumber(newCounter);
+    }
+
+    return this.formatPreviewNumber(counter);
+  }
+
+  /**
+   * Formate un numéro de prévisualisation (sans incrémenter)
+   */
+  private formatPreviewNumber(counter: CounterDocument): string {
+    const now = new Date();
+    const year = now.getFullYear().toString();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const nextNumber = counter.last_number + counter.increment;
+    const number = nextNumber.toString().padStart(4, '0');
+
+    let formattedNumber = counter.format
+      .replace(/YYYY/g, year)
+      .replace(/YY/g, year.slice(-2))
+      .replace(/MM/g, month)
+      .replace(/DD/g, day)
+      .replace(/XXXX/g, number)
+      .replace(/XXX/g, nextNumber.toString().padStart(3, '0'))
+      .replace(/XX/g, nextNumber.toString().padStart(2, '0'))
+      .replace(/X/g, nextNumber.toString());
+
+    return formattedNumber;
+  }
+
+  /**
+   * Récupère le numéro courant (dernier numéro utilisé)
+   */
   async getCurrentNumber(counterType: string): Promise<number> {
     const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
     
@@ -101,6 +158,9 @@ export class CountersService {
     return counter.last_number;
   }
 
+  /**
+   * Réinitialise un compteur
+   */
   async resetCounter(counterType: string, startNumber?: number): Promise<CounterDocument> {
     const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
     
@@ -114,29 +174,16 @@ export class CountersService {
     return counter.save();
   }
 
-  async updateCounter(
-    counterType: string,
-    updateData: Partial<Counter>,
-  ): Promise<CounterDocument> {
-    const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
-    
-    if (!counter) {
-      throw new NotFoundException(`Compteur ${counterType} non trouvé`);
-    }
-
-    // Ne pas permettre la modification du type de compteur
-    if (updateData.counter_type && updateData.counter_type !== counterType) {
-      throw new ConflictException('Le type de compteur ne peut pas être modifié');
-    }
-
-    Object.assign(counter, updateData);
-    return counter.save();
-  }
-
+  /**
+   * Récupère tous les compteurs
+   */
   async getAllCounters(): Promise<CounterDocument[]> {
     return this.counterModel.find().exec();
   }
 
+  /**
+   * Récupère un compteur spécifique
+   */
   async getCounter(counterType: string): Promise<CounterDocument> {
     const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
     
@@ -147,6 +194,9 @@ export class CountersService {
     return counter;
   }
 
+  /**
+   * Supprime un compteur
+   */
   async deleteCounter(counterType: string): Promise<void> {
     const result = await this.counterModel.deleteOne({ counter_type: counterType }).exec();
     
@@ -155,6 +205,9 @@ export class CountersService {
     }
   }
 
+  /**
+   * Initialise tous les compteurs par défaut
+   */
   async initializeAllCounters(): Promise<void> {
     const counterTypes = ['OF', 'CO', 'DE', 'BL', 'FA', 'AV', 'PRODUCT', 'CUSTOMER', 'SUPPLIER'];
     
@@ -163,33 +216,9 @@ export class CountersService {
     }
   }
 
-  async getNextNumbersForBatch(counterType: string, count: number): Promise<string[]> {
-    const numbers: string[] = [];
-    const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
-    
-    if (!counter) {
-      const newCounter = await this.initializeCounter(counterType);
-      for (let i = 0; i < count; i++) {
-        numbers.push(await this.generateNumber(newCounter));
-      }
-      return numbers;
-    }
-
-    // Vérifier si on a assez de numéros disponibles
-    const availableNumbers = counter.max_number - counter.last_number;
-    if (availableNumbers < count) {
-      throw new ConflictException(
-        `Seulement ${availableNumbers} numéros disponibles pour ${counterType}, ${count} demandés`,
-      );
-    }
-
-    for (let i = 0; i < count; i++) {
-      numbers.push(await this.generateNumber(counter));
-    }
-
-    return numbers;
-  }
-
+  /**
+   * Récupère les informations d'un compteur
+   */
   async getCounterInfo(counterType: string): Promise<{
     current: number;
     next: string;
@@ -203,24 +232,32 @@ export class CountersService {
       const newCounter = await this.initializeCounter(counterType);
       return {
         current: newCounter.last_number,
-        next: await this.generateNumber(newCounter),
+        next: await this.getNextNumberPreview(counterType),
         format: newCounter.format,
         max: newCounter.max_number,
         available: newCounter.max_number - newCounter.last_number,
       };
     }
 
-    const nextNumber = await this.generateNumber(counter);
-    // Annuler l'incrément car generateNumber a déjà incrémenté
-    counter.last_number -= counter.increment;
-    await counter.save();
-
     return {
       current: counter.last_number,
-      next: nextNumber,
+      next: await this.getNextNumberPreview(counterType),
       format: counter.format,
       max: counter.max_number,
       available: counter.max_number - counter.last_number,
     };
+  }
+
+  /**
+   * Vérifie si un numéro est disponible
+   */
+  async isNumberAvailable(counterType: string, count: number = 1): Promise<boolean> {
+    const counter = await this.counterModel.findOne({ counter_type: counterType }).exec();
+    
+    if (!counter) {
+      return true; // Le compteur n'existe pas encore, donc tous les numéros sont disponibles
+    }
+
+    return (counter.max_number - counter.last_number) >= count;
   }
 }

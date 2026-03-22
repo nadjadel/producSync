@@ -18,18 +18,16 @@ export class SuppliersService {
   ) {}
 
   async create(createSupplierDto: CreateSupplierDto): Promise<SupplierDocument> {
-    // Générer le code fournisseur si non fourni
-    if (!createSupplierDto.code) {
-      createSupplierDto.code = await this.countersService.getNextNumber('SUPPLIER');
-    }
-
-    // Vérifier l'unicité du code
+    // TOUJOURS générer un code automatiquement, ignorer le code fourni par l'utilisateur
+    const generatedCode = await this.countersService.getNextNumber('SUPPLIER');
+    
+    // Vérifier l'unicité du code (au cas où)
     const existingSupplier = await this.supplierModel.findOne({
-      code: createSupplierDto.code,
+      code: generatedCode,
     }).exec();
 
     if (existingSupplier) {
-      throw new ConflictException('Un fournisseur avec ce code existe déjà');
+      throw new ConflictException(`Le code ${generatedCode} est déjà utilisé`);
     }
 
     // Vérifier l'unicité de l'email
@@ -41,7 +39,12 @@ export class SuppliersService {
       throw new ConflictException('Un fournisseur avec cet email existe déjà');
     }
 
-    const supplier = new this.supplierModel(createSupplierDto);
+    // Créer le fournisseur avec le code généré automatiquement
+    const supplier = new this.supplierModel({
+      ...createSupplierDto,
+      code: generatedCode, // Toujours utiliser le code généré
+    });
+    
     return supplier.save();
   }
 
@@ -69,14 +72,9 @@ export class SuppliersService {
   }
 
   async update(id: string, updateSupplierDto: UpdateSupplierDto): Promise<SupplierDocument> {
+    // NE PAS permettre la modification du code
     if (updateSupplierDto.code) {
-      const existingSupplier = await this.supplierModel.findOne({
-        code: updateSupplierDto.code,
-        _id: { $ne: id },
-      }).exec();
-      if (existingSupplier) {
-        throw new ConflictException('Un fournisseur avec ce code existe déjà');
-      }
+      delete updateSupplierDto.code; // Supprimer le code de la mise à jour
     }
 
     if (updateSupplierDto.email) {
