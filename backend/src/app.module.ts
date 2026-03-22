@@ -22,6 +22,7 @@ import { CountersModule } from './counters/counters.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { CreditNotesModule } from './credit-notes/credit-notes.module';
 import { WorkstationsModule } from './workstations/workstations.module';
+import { StockMovementsModule } from './stock-movements/stock-movements.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { WorkstationsModule } from './workstations/workstations.module';
     SuppliersModule,
     CreditNotesModule,
     WorkstationsModule,
+    StockMovementsModule,
   ],
   controllers: [],
   providers: [
