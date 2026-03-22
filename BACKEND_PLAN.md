@@ -19,7 +19,8 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 - [x] Module ManufacturingOrders
 - [x] Module DeliveryNotes (+ regroupement)
 - [x] Module Invoices (+ regroupement)
-- [ ] Modules restants (CreditNotes, Workstations, StockMovements, Suppliers, Counters)
+- [x] Module Counters
+- [ ] Modules restants (CreditNotes, Workstations, StockMovements, Suppliers)
 - [ ] Documentation Swagger
 - [ ] Tests
 
@@ -27,7 +28,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 
 ## 📊 Progression
 
-**Modules complétés (12/14):**
+**Modules complétés (13/14):**
 1. ✅ **Auth** - Authentification JWT avec guards, decorators et stratégies
 2. ✅ **Users** - Gestion des utilisateurs
 3. ✅ **Customers** - Gestion des clients
@@ -37,16 +38,16 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 7. ✅ **ManufacturingOrders** - Ordres de fabrication avec suivi de progression et sous-traitance
 8. ✅ **DeliveryNotes** - Bons de livraison avec regroupement d'OFs et gestion de statut
 9. ✅ **Invoices** - Factures avec regroupement de BLs et suivi de paiement
-10. ✅ **Configuration** - MongoDB, rate limiting, sécurité
-11. ✅ **Structure** - Architecture du projet
-12. ✅ **Auth Module** - Module d'authentification complet
+10. ✅ **Counters** - Compteurs pour numérotation automatique des documents
+11. ✅ **Configuration** - MongoDB, rate limiting, sécurité
+12. ✅ **Structure** - Architecture du projet
+13. ✅ **Auth Module** - Module d'authentification complet
 
 **Modules restants:**
 1. **CreditNotes** - Avoirs
 2. **Workstations** - Postes de travail
 3. **StockMovements** - Mouvements de stock
 4. **Suppliers** - Fournisseurs/sous-traitants
-5. **Counters** - Compteurs pour numérotation
 
 ---
 
@@ -102,11 +103,11 @@ POST /api/quotes/:id/convert-to-order
 | **ManufacturingOrders** | CRUD + progress tracking + delivery status + subcontracting |
 | **DeliveryNotes** | CRUD + OF grouping + status management + invoicing |
 | **Invoices** | CRUD + BL grouping + payment tracking + overdue management |
+| **Counters** | Service injectable pour la numérotation automatique |
 | **CreditNotes** | À implémenter |
 | **Workstations** | À implémenter |
 | **StockMovements** | À implémenter |
 | **Suppliers** | À implémenter |
-| **Counters** | À implémenter |
 
 ---
 
@@ -137,6 +138,7 @@ git merge --no-ff feature/[module]-module
 - ✅ `feature/manufacturing-orders-module`
 - ✅ `feature/delivery-notes-module`
 - ✅ `feature/invoices-module`
+- ✅ `feature/counters-module`
 
 ---
 
@@ -162,3 +164,14 @@ JWT_SECRET=producSync_jwt_secret_2024_secure_key
 JWT_EXPIRATION=7d
 PORT=3000
 ```
+
+### Module Counters - Formats par défaut
+- **OF**: `YYYY-OF-XXXX` (ex: 2024-OF-0001)
+- **CO**: `YYYY-CO-XXXX` (ex: 2024-CO-0001)
+- **DE**: `YYYY-DE-XXXX` (ex: 2024-DE-0001)
+- **BL**: `YYYY-BL-XXXX` (ex: 2024-BL-0001)
+- **FA**: `YYYY-FA-XXXX` (ex: 2024-FA-0001)
+- **AV**: `YYYY-AV-XXXX` (ex: 2024-AV-0001)
+- **PRODUCT**: `PR-XXXX` (ex: PR-0001)
+- **CUSTOMER**: `CL-XXXX` (ex: CL-0001)
+- **SUPPLIER**: `SU-XXXX` (ex: SU-0001)
