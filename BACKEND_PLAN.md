@@ -20,7 +20,8 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 - [x] Module DeliveryNotes (+ regroupement)
 - [x] Module Invoices (+ regroupement)
 - [x] Module Counters
-- [ ] Modules restants (CreditNotes, Workstations, StockMovements, Suppliers)
+- [x] Module Suppliers
+- [ ] Modules restants (CreditNotes, Workstations, StockMovements)
 - [ ] Documentation Swagger
 - [ ] Tests
 
@@ -28,7 +29,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 
 ## 📊 Progression
 
-**Modules complétés (13/14):**
+**Modules complétés (14/14):**
 1. ✅ **Auth** - Authentification JWT avec guards, decorators et stratégies
 2. ✅ **Users** - Gestion des utilisateurs
 3. ✅ **Customers** - Gestion des clients
@@ -39,15 +40,15 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 8. ✅ **DeliveryNotes** - Bons de livraison avec regroupement d'OFs et gestion de statut
 9. ✅ **Invoices** - Factures avec regroupement de BLs et suivi de paiement
 10. ✅ **Counters** - Compteurs pour numérotation automatique des documents
-11. ✅ **Configuration** - MongoDB, rate limiting, sécurité
-12. ✅ **Structure** - Architecture du projet
-13. ✅ **Auth Module** - Module d'authentification complet
+11. ✅ **Suppliers** - Gestion des fournisseurs et sous-traitants
+12. ✅ **Configuration** - MongoDB, rate limiting, sécurité
+13. ✅ **Structure** - Architecture du projet
+14. ✅ **Auth Module** - Module d'authentification complet
 
 **Modules restants:**
 1. **CreditNotes** - Avoirs
 2. **Workstations** - Postes de travail
 3. **StockMovements** - Mouvements de stock
-4. **Suppliers** - Fournisseurs/sous-traitants
 
 ---
 
@@ -88,6 +89,15 @@ POST /api/quotes/:id/convert-to-order
 → MàJ devis: status='accepted', order_id=order.id
 ```
 
+### Flux 5 : Sous-traitance
+```
+POST /api/manufacturing-orders/:id/subcontract
+Body: { supplierId, deliveryDate, notes }
+→ Vérifie que le fournisseur est actif et a la spécialité requise
+→ MàJ OF: subcontractor_id=supplierId, subcontractor_status='pending'
+→ Génère un numéro de commande fournisseur via CounterService
+```
+
 ---
 
 ## 📡 Endpoints API disponibles
@@ -104,10 +114,10 @@ POST /api/quotes/:id/convert-to-order
 | **DeliveryNotes** | CRUD + OF grouping + status management + invoicing |
 | **Invoices** | CRUD + BL grouping + payment tracking + overdue management |
 | **Counters** | Service injectable pour la numérotation automatique |
+| **Suppliers** | CRUD + certifications + reliability scoring + statistics |
 | **CreditNotes** | À implémenter |
 | **Workstations** | À implémenter |
 | **StockMovements** | À implémenter |
-| **Suppliers** | À implémenter |
 
 ---
 
@@ -139,6 +149,7 @@ git merge --no-ff feature/[module]-module
 - ✅ `feature/delivery-notes-module`
 - ✅ `feature/invoices-module`
 - ✅ `feature/counters-module`
+- ✅ `feature/suppliers-module`
 
 ---
 
@@ -175,3 +186,11 @@ PORT=3000
 - **PRODUCT**: `PR-XXXX` (ex: PR-0001)
 - **CUSTOMER**: `CL-XXXX` (ex: CL-0001)
 - **SUPPLIER**: `SU-XXXX` (ex: SU-0001)
+
+### Module Suppliers - Fonctionnalités
+- **Numérotation automatique** via CountersService
+- **Gestion des certifications** et spécialités
+- **Scoring de fiabilité** (0-5)
+- **Statistiques d'achat** et délais de livraison
+- **Contacts multiples** et informations bancaires
+- **Recherche avancée** par spécialité, certification, catégorie
