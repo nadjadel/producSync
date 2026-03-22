@@ -8,15 +8,10 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 // Configuration
 import configuration from './config/configuration';
 
-<<<<<<< Updated upstream
-// Modules (seront ajoutés progressivement)
-// import { AuthModule } from './auth/auth.module';
-// import { UsersModule } from './users/users.module';
-=======
 // Modules
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
->>>>>>> Stashed changes
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -43,15 +38,10 @@ import { UsersModule } from './users/users.module';
       },
     ]),
 
-<<<<<<< Updated upstream
-    // Modules métier (à décommenter au fur et à mesure)
-    // AuthModule,
-    // UsersModule,
-=======
     // Modules métier
     AuthModule,
     UsersModule,
->>>>>>> Stashed changes
+    CustomersModule,
   ],
   controllers: [],
   providers: [
