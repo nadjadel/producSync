@@ -20,25 +20,26 @@ export class CountersService {
     }
 
     const defaultFormats: Record<string, string> = {
-      'OF': 'YYYY-OF-XXXX',
-      'CO': 'YYYY-CO-XXXX',
-      'DE': 'YYYY-DE-XXXX',
-      'BL': 'YYYY-BL-XXXX',
-      'FA': 'YYYY-FA-XXXX',
-      'AV': 'YYYY-AV-XXXX',
-      'PRODUCT': 'PR-XXXX',
-      'CUSTOMER': 'CL-XXXX',
-      'SUPPLIER': 'SU-XXXX',
+      'OF': 'OF+XXXXXXXX',
+      'CO': 'CO+XXXXXXXX',
+      'DE': 'DE+XXXXXXXX',
+      'BL': 'BL+XXXXXXXX',
+      'FA': 'FA+XXXXXXXX',
+      'AV': 'AV+XXXXXXXX',
+      'SUPPLIER': 'SU+XXXXXXXX',
+      'SUPPLIER_ORDER': 'ST+XXXXXXXX',
+      'CUSTOMER': 'XXX', // 3 lettres générées
+      'PRODUCT': 'XXX+XXXXXXXX', // 3 lettres customer + 8 chiffres
     };
 
     const counter = new this.counterModel({
       counter_type: counterType,
-      format: format || defaultFormats[counterType] || 'YYYY-XXXX',
+      format: format || defaultFormats[counterType] || 'XXX+XXXXXXXX',
       last_number: 0,
       increment: 1,
-      reset_yearly: true,
+      reset_yearly: false, // Pas de réinitialisation annuelle pour les formats sans année
       start_number: 1,
-      max_number: 9999,
+      max_number: 99999999, // 8 chiffres = 99,999,999
       current_year: new Date().getFullYear(),
     });
 
@@ -88,23 +89,60 @@ export class CountersService {
    * Formate le numéro selon le format du compteur
    */
   private formatNumber(counter: CounterDocument): string {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
-    const number = counter.last_number.toString().padStart(4, '0');
-
+    const nextNumber = counter.last_number;
+    
+    // Cas spécial pour CUSTOMER : 3 lettres générées
+    if (counter.counter_type === 'CUSTOMER') {
+      return this.generateCustomerCode(nextNumber);
+    }
+    
+    // Cas spécial pour PRODUCT : 3 lettres customer + 8 chiffres
+    if (counter.counter_type === 'PRODUCT') {
+      return this.generateProductCode(nextNumber);
+    }
+    
+    // Cas général : utiliser le format du compteur
     let formattedNumber = counter.format
-      .replace(/YYYY/g, year)
-      .replace(/YY/g, year.slice(-2))
-      .replace(/MM/g, month)
-      .replace(/DD/g, day)
-      .replace(/XXXX/g, number)
-      .replace(/XXX/g, counter.last_number.toString().padStart(3, '0'))
-      .replace(/XX/g, counter.last_number.toString().padStart(2, '0'))
-      .replace(/X/g, counter.last_number.toString());
+      .replace(/XXXXXXXX/g, nextNumber.toString().padStart(8, '0'))
+      .replace(/XXXXXXX/g, nextNumber.toString().padStart(7, '0'))
+      .replace(/XXXXXX/g, nextNumber.toString().padStart(6, '0'))
+      .replace(/XXXXX/g, nextNumber.toString().padStart(5, '0'))
+      .replace(/XXXX/g, nextNumber.toString().padStart(4, '0'))
+      .replace(/XXX/g, nextNumber.toString().padStart(3, '0'))
+      .replace(/XX/g, nextNumber.toString().padStart(2, '0'))
+      .replace(/X/g, nextNumber.toString());
 
     return formattedNumber;
+  }
+
+  /**
+   * Génère un code client de 3 lettres
+   */
+  private generateCustomerCode(number: number): string {
+    // Convertir le nombre en base 26 (A-Z) pour obtenir 3 lettres
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let code = '';
+    let n = number;
+    
+    for (let i = 0; i < 3; i++) {
+      const remainder = n % 26;
+      code = letters[remainder] + code;
+      n = Math.floor(n / 26);
+    }
+    
+    return code.padStart(3, 'A');
+  }
+
+  /**
+   * Génère un code produit : 3 lettres customer + 8 chiffres
+   */
+  private generateProductCode(number: number): string {
+    // Pour l'instant, on utilise des lettres fixes
+    // En production, il faudrait récupérer les 3 lettres du client
+    const customerPrefix = 'CUS'; // À remplacer par les 3 lettres du client
+    const productNumber = number.toString().padStart(8, '0');
+    
+    return `${customerPrefix}+${productNumber}`;
   }
 
   /**
@@ -125,19 +163,25 @@ export class CountersService {
    * Formate un numéro de prévisualisation (sans incrémenter)
    */
   private formatPreviewNumber(counter: CounterDocument): string {
-    const now = new Date();
-    const year = now.getFullYear().toString();
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const day = now.getDate().toString().padStart(2, '0');
     const nextNumber = counter.last_number + counter.increment;
-    const number = nextNumber.toString().padStart(4, '0');
-
+    
+    // Cas spécial pour CUSTOMER : 3 lettres générées
+    if (counter.counter_type === 'CUSTOMER') {
+      return this.generateCustomerCode(nextNumber);
+    }
+    
+    // Cas spécial pour PRODUCT : 3 lettres customer + 8 chiffres
+    if (counter.counter_type === 'PRODUCT') {
+      return this.generateProductCode(nextNumber);
+    }
+    
+    // Cas général : utiliser le format du compteur
     let formattedNumber = counter.format
-      .replace(/YYYY/g, year)
-      .replace(/YY/g, year.slice(-2))
-      .replace(/MM/g, month)
-      .replace(/DD/g, day)
-      .replace(/XXXX/g, number)
+      .replace(/XXXXXXXX/g, nextNumber.toString().padStart(8, '0'))
+      .replace(/XXXXXXX/g, nextNumber.toString().padStart(7, '0'))
+      .replace(/XXXXXX/g, nextNumber.toString().padStart(6, '0'))
+      .replace(/XXXXX/g, nextNumber.toString().padStart(5, '0'))
+      .replace(/XXXX/g, nextNumber.toString().padStart(4, '0'))
       .replace(/XXX/g, nextNumber.toString().padStart(3, '0'))
       .replace(/XX/g, nextNumber.toString().padStart(2, '0'))
       .replace(/X/g, nextNumber.toString());
@@ -209,7 +253,7 @@ export class CountersService {
    * Initialise tous les compteurs par défaut
    */
   async initializeAllCounters(): Promise<void> {
-    const counterTypes = ['OF', 'CO', 'DE', 'BL', 'FA', 'AV', 'PRODUCT', 'CUSTOMER', 'SUPPLIER'];
+    const counterTypes = ['OF', 'CO', 'DE', 'BL', 'FA', 'AV', 'SUPPLIER', 'SUPPLIER_ORDER', 'CUSTOMER', 'PRODUCT'];
     
     for (const counterType of counterTypes) {
       await this.initializeCounter(counterType);
@@ -259,5 +303,42 @@ export class CountersService {
     }
 
     return (counter.max_number - counter.last_number) >= count;
+  }
+
+  /**
+   * Génère un code produit avec un préfixe client spécifique
+   */
+  async getNextProductCode(customerPrefix: string): Promise<string> {
+    const counter = await this.counterModel.findOne({ counter_type: 'PRODUCT' }).exec();
+    
+    if (!counter) {
+      await this.initializeCounter('PRODUCT');
+      return this.getNextProductCode(customerPrefix);
+    }
+
+    // Incrémenter le compteur
+    counter.last_number += counter.increment;
+    await counter.save();
+
+    const productNumber = counter.last_number.toString().padStart(8, '0');
+    return `${customerPrefix}+${productNumber}`;
+  }
+
+  /**
+   * Génère un code client de 3 lettres
+   */
+  async getNextCustomerCode(): Promise<string> {
+    const counter = await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec();
+    
+    if (!counter) {
+      const newCounter = await this.initializeCounter('CUSTOMER');
+      return this.generateCustomerCode(newCounter.last_number + newCounter.increment);
+    }
+
+    // Incrémenter le compteur
+    counter.last_number += counter.increment;
+    await counter.save();
+
+    return this.generateCustomerCode(counter.last_number);
   }
 }
