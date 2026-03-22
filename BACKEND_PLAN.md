@@ -18,7 +18,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 - [x] Module Quotes (+ conversion)
 - [x] Module ManufacturingOrders
 - [x] Module DeliveryNotes (+ regroupement)
-- [ ] Module Invoices (+ regroupement)
+- [x] Module Invoices (+ regroupement)
 - [ ] Modules restants (CreditNotes, Workstations, StockMovements, Suppliers, Counters)
 - [ ] Documentation Swagger
 - [ ] Tests
@@ -27,7 +27,7 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 
 ## 📊 Progression
 
-**Modules complétés (11/14):**
+**Modules complétés (12/14):**
 1. ✅ **Auth** - Authentification JWT avec guards, decorators et stratégies
 2. ✅ **Users** - Gestion des utilisateurs
 3. ✅ **Customers** - Gestion des clients
@@ -36,17 +36,17 @@ Ce document décrit le plan d'implémentation du backend NestJS pour l'applicati
 6. ✅ **Quotes** - Devis avec conversion en commandes et expiration
 7. ✅ **ManufacturingOrders** - Ordres de fabrication avec suivi de progression et sous-traitance
 8. ✅ **DeliveryNotes** - Bons de livraison avec regroupement d'OFs et gestion de statut
-9. ✅ **Configuration** - MongoDB, rate limiting, sécurité
-10. ✅ **Structure** - Architecture du projet
-11. ✅ **Auth Module** - Module d'authentification complet
+9. ✅ **Invoices** - Factures avec regroupement de BLs et suivi de paiement
+10. ✅ **Configuration** - MongoDB, rate limiting, sécurité
+11. ✅ **Structure** - Architecture du projet
+12. ✅ **Auth Module** - Module d'authentification complet
 
 **Modules restants:**
-1. **Invoices** - Factures avec regroupement de BLs
-2. **CreditNotes** - Avoirs
-3. **Workstations** - Postes de travail
-4. **StockMovements** - Mouvements de stock
-5. **Suppliers** - Fournisseurs/sous-traitants
-6. **Counters** - Compteurs pour numérotation
+1. **CreditNotes** - Avoirs
+2. **Workstations** - Postes de travail
+3. **StockMovements** - Mouvements de stock
+4. **Suppliers** - Fournisseurs/sous-traitants
+5. **Counters** - Compteurs pour numérotation
 
 ---
 
@@ -101,7 +101,7 @@ POST /api/quotes/:id/convert-to-order
 | **Quotes** | CRUD + conversion to orders + expiration tracking |
 | **ManufacturingOrders** | CRUD + progress tracking + delivery status + subcontracting |
 | **DeliveryNotes** | CRUD + OF grouping + status management + invoicing |
-| **Invoices** | À implémenter |
+| **Invoices** | CRUD + BL grouping + payment tracking + overdue management |
 | **CreditNotes** | À implémenter |
 | **Workstations** | À implémenter |
 | **StockMovements** | À implémenter |
@@ -136,6 +136,7 @@ git merge --no-ff feature/[module]-module
 - ✅ `feature/quotes-module`
 - ✅ `feature/manufacturing-orders-module`
 - ✅ `feature/delivery-notes-module`
+- ✅ `feature/invoices-module`
 
 ---
 
