@@ -85,7 +85,7 @@ export class UsersService {
     }
   }
 
-  async invite(email: string, role: string = 'User'): Promise<UserDocument> {
+  async invite(email: string, role: string = 'operator'): Promise<UserDocument> {
     // Vérifier si l'email existe déjà
     const existingUser = await this.userModel.findOne({ email }).exec();
     if (existingUser) {
@@ -99,9 +99,10 @@ export class UsersService {
     const user = new this.userModel({
       email,
       password: hashedPassword,
-      full_name: email.split('@')[0],
+      first_name: email.split('@')[0],
+      last_name: 'Invité',
       role,
-      status: 'Actif',
+      status: 'active',
     });
 
     // TODO: Envoyer un email d'invitation avec le mot de passe temporaire
@@ -109,7 +110,7 @@ export class UsersService {
     return user.save();
   }
 
-  async updateStatus(id: string, status: 'Actif' | 'Inactif'): Promise<UserDocument> {
+  async updateStatus(id: string, status: 'active' | 'inactive'): Promise<UserDocument> {
     const user = await this.userModel
       .findByIdAndUpdate(id, { status }, { new: true })
       .select('-password')

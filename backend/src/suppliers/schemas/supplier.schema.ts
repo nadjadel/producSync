@@ -1,7 +1,37 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
 
 export type SupplierDocument = Supplier & Document;
+
+@Schema()
+export class BankDetails {
+  @Prop()
+  bank_name: string;
+
+  @Prop()
+  iban: string;
+
+  @Prop()
+  bic: string;
+
+  @Prop()
+  account_holder: string;
+}
+
+@Schema()
+export class AdditionalContact {
+  @Prop()
+  name: string;
+
+  @Prop()
+  position: string;
+
+  @Prop()
+  email: string;
+
+  @Prop()
+  phone: string;
+}
 
 @Schema({ timestamps: true })
 export class Supplier {
@@ -105,27 +135,22 @@ export class Supplier {
   certifications?: string[];
 
   @Prop({
-    description: 'Contacts supplémentaires'
+    description: 'Contacts supplémentaires',
+    type: [AdditionalContact],
+    default: [],
   })
-  additional_contacts?: Array<{
-    name: string;
-    position: string;
-    email: string;
-    phone: string;
-  }>;
+  additional_contacts?: AdditionalContact[];
 
   @Prop({
-    description: 'Informations bancaires'
+    description: 'Informations bancaires',
+    type: BankDetails,
   })
-  bank_details?: {
-    bank_name: string;
-    iban: string;
-    bic: string;
-    account_holder: string;
-  };
+  bank_details?: BankDetails;
 
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export const SupplierSchema = SchemaFactory.createForClass(Supplier);
+export const BankDetailsSchema = SchemaFactory.createForClass(BankDetails);
+export const AdditionalContactSchema = SchemaFactory.createForClass(AdditionalContact);

@@ -9,6 +9,7 @@ import DeliveryNotes from './pages/DeliveryNotes';
 import Invoices from './pages/Invoices';
 import Suppliers from './pages/Suppliers';
 import Users from './pages/Users';
+import Login from './pages/Login';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "Invoices": Invoices,
     "Suppliers": Suppliers,
     "Users": Users,
+    "Login": Login,
 }
 
 export const pagesConfig = {

@@ -52,6 +52,7 @@ function makeEntity(path) {
 
 export const base44 = {
   entities: {
+    User:                makeEntity('users'),
     Counter:             makeEntity('counters'),
     Customer:            makeEntity('customers'),
     Product:             makeEntity('products'),

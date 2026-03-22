@@ -20,44 +20,44 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles('Administrator')
+  @Roles('admin')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  @Roles('Administrator')
+  @Roles('admin')
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @Roles('Administrator')
+  @Roles('admin')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles('Administrator')
+  @Roles('admin')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @Roles('Administrator')
+  @Roles('admin')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
 
   @Post('invite')
-  @Roles('Administrator')
+  @Roles('admin')
   invite(@Body() body: { email: string; role?: string }) {
     return this.usersService.invite(body.email, body.role);
   }
 
   @Patch(':id/status')
-  @Roles('Administrator')
-  updateStatus(@Param('id') id: string, @Body() body: { status: 'Actif' | 'Inactif' }) {
+  @Roles('admin')
+  updateStatus(@Param('id') id: string, @Body() body: { status: 'active' | 'inactive' }) {
     return this.usersService.updateStatus(id, body.status);
   }
 }

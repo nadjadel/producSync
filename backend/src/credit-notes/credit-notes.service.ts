@@ -216,7 +216,7 @@ export class CreditNotesService {
     creditNote.is_fully_applied = creditNote.remaining_amount === 0;
     
     if (!creditNote.applied_to_invoice_id) {
-      creditNote.applied_to_invoice_id = invoice._id;
+      creditNote.applied_to_invoice_id = invoice._id as any;
       creditNote.applied_date = new Date();
     }
 

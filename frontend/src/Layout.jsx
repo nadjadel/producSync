@@ -41,7 +41,14 @@ export default function Layout({ children, currentPageName }) {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(setCurrentUser).catch(() => {});
+    const token = localStorage.getItem('producSync_token');
+    if (token) {
+      base44.auth.me().then(setCurrentUser).catch(() => {
+        // Si l'API retourne une erreur, supprimer le token invalide
+        localStorage.removeItem('producSync_token');
+        setCurrentUser(null);
+      });
+    }
   }, []);
 
   return (
@@ -120,7 +127,10 @@ export default function Layout({ children, currentPageName }) {
             <Button
               variant="ghost"
               className="w-full justify-start text-slate-500 hover:text-rose-600 hover:bg-rose-50 text-sm"
-              onClick={() => base44.auth.logout()}
+              onClick={() => {
+                base44.auth.logout();
+                window.location.href = '/login';
+              }}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Déconnexion

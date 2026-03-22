@@ -239,7 +239,7 @@ export class SuppliersService {
     let activeCount = 0;
     let inactiveCount = 0;
 
-    allSuppliers.forEach(supplier => {
+    allSuppliers.forEach((supplier: SupplierDocument) => {
       if (supplier.status === 'active') activeCount++;
       else inactiveCount++;
 
@@ -277,7 +277,7 @@ export class SuppliersService {
     const supplier = await this.findOne(id);
     
     if (supplier.certifications) {
-      supplier.certifications = supplier.certifications.filter(c => c !== certification);
+      supplier.certifications = supplier.certifications.filter((c: string) => c !== certification);
     }
     
     return supplier.save();
@@ -299,7 +299,7 @@ export class SuppliersService {
     const supplier = await this.findOne(id);
     
     if (supplier.product_categories) {
-      supplier.product_categories = supplier.product_categories.filter(c => c !== category);
+      supplier.product_categories = supplier.product_categories.filter((c: string) => c !== category);
     }
     
     return supplier.save();

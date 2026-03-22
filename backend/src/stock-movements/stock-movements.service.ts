@@ -303,7 +303,7 @@ export class StockMovementsService {
 
     // Marquer le mouvement original comme inversé
     originalMovement.is_reversed = true;
-    originalMovement.reversed_by_id = reverseMovement._id;
+    originalMovement.reversed_by_id = reverseMovement._id as any;
     originalMovement.reversal_reason = reason;
     originalMovement.reversal_date = new Date();
     
@@ -486,7 +486,7 @@ export class StockMovementsService {
     
     const byProduct = products.map(product => ({
       product_id: product._id.toString(),
-      product_code: product.code,
+      product_code: product.reference, // Utiliser reference au lieu de code
       product_name: product.name,
       quantity: product.current_stock || 0,
       average_cost: product.average_cost || 0,
