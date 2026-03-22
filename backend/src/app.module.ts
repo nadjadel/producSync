@@ -15,6 +15,7 @@ import { CustomersModule } from './customers/customers.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { QuotesModule } from './quotes/quotes.module';
+import { ManufacturingOrdersModule } from './manufacturing-orders/manufacturing-orders.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { QuotesModule } from './quotes/quotes.module';
     ProductsModule,
     OrdersModule,
     QuotesModule,
+    ManufacturingOrdersModule,
   ],
   controllers: [],
   providers: [
