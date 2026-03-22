@@ -8,8 +8,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 // Configuration
 import configuration from './config/configuration';
 
-// Modules (seront ajoutés progressivement)
-// import { AuthModule } from './auth/auth.module';
+// Modules
+import { AuthModule } from './auth/auth.module';
 // import { UsersModule } from './users/users.module';
 
 @Module({
@@ -37,8 +37,8 @@ import configuration from './config/configuration';
       },
     ]),
 
-    // Modules métier (à décommenter au fur et à mesure)
-    // AuthModule,
+    // Modules métier
+    AuthModule,
     // UsersModule,
   ],
   controllers: [],
