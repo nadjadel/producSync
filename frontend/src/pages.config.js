@@ -4,6 +4,7 @@ import ManufacturingOrders from './pages/ManufacturingOrders';
 import Workstations from './pages/Workstations';
 import Stock from './pages/Stock';
 import Customers from './pages/Customers';
+import CustomerDetails from './pages/CustomerDetails';
 import Orders from './pages/Orders';
 import DeliveryNotes from './pages/DeliveryNotes';
 import Invoices from './pages/Invoices';
@@ -20,6 +21,7 @@ export const PAGES = {
     "Workstations": Workstations,
     "Stock": Stock,
     "Customers": Customers,
+    "CustomerDetails": CustomerDetails,
     "Orders": Orders,
     "DeliveryNotes": DeliveryNotes,
     "Invoices": Invoices,

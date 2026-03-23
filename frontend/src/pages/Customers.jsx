@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, MoreVertical, Pencil, Trash2, Users, Mail, Phone } from "lucide-react";
+import { Plus, Search, MoreVertical, Pencil, Trash2, Users, Mail, Phone, Eye } from "lucide-react";
 import { toast } from "sonner";
 import CustomerForm from '@/components/customers/CustomerForm';
 
@@ -44,12 +45,12 @@ export default function Customers() {
   });
 
   const handleSave = (data) => {
-    if (editingCustomer) updateMutation.mutate({ id: editingCustomer.id, data });
+    if (editingCustomer) updateMutation.mutate({ id: editingCustomer._id, data });
     else createMutation.mutate(data);
   };
 
   const handleDelete = (customer) => {
-    if (confirm(`Supprimer "${customer.company_name}" ?`)) deleteMutation.mutate(customer.id);
+    if (confirm(`Supprimer "${customer.company_name}" ?`)) deleteMutation.mutate(customer._id);
   };
 
   const filtered = customers.filter(c =>
@@ -105,7 +106,7 @@ export default function Customers() {
                 {filtered.map((customer) => {
                   const statusConfig = STATUS_CONFIG[customer.status] || STATUS_CONFIG.active;
                   return (
-                    <TableRow key={customer.id} className="hover:bg-slate-50/50">
+                    <TableRow key={customer._id} className="hover:bg-slate-50/50">
                       <TableCell className="font-mono font-bold text-slate-700">{customer.code}</TableCell>
                       <TableCell>
                         <p className="font-semibold text-slate-900">{customer.company_name}</p>
@@ -132,6 +133,11 @@ export default function Customers() {
                             <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link to={`/customers/${customer._id}`}>
+                                <Eye className="w-4 h-4 mr-2" /> Voir détails
+                              </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setEditingCustomer(customer); setFormOpen(true); }}>
                               <Pencil className="w-4 h-4 mr-2" /> Modifier
                             </DropdownMenuItem>

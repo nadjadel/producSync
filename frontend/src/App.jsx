@@ -43,6 +43,23 @@ function App() {
               );
             }
             
+            // Pour CustomerDetails, route avec paramètre id
+            if (name === 'CustomerDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/customers/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
             // Pour les autres pages, protéger avec authentification
             return (
               <Route
