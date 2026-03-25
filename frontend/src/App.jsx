@@ -111,6 +111,74 @@ function App() {
               );
             }
             
+            // Pour InvoiceDetails, route avec paramètre id
+            if (name === 'InvoiceDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/invoices/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
+            // Pour DeliveryNoteDetails, route avec paramètre id
+            if (name === 'DeliveryNoteDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/delivery-notes/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
+            // Pour CreditNoteDetails, route avec paramètre id
+            if (name === 'CreditNoteDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/credit-notes/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
+            // Pour SupplierDetails, route avec paramètre id
+            if (name === 'SupplierDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/suppliers/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
             // Pour les autres pages, protéger avec authentification
             return (
               <Route
