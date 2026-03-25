@@ -37,6 +37,28 @@ export default function DeliveryNotes() {
     queryFn: () => base44.entities.Customer.list(),
   });
 
+  // Check for prefilled data from customer details page
+  React.useEffect(() => {
+    // Look for any prefilled deliveryNote data in sessionStorage
+    const keys = Object.keys(sessionStorage);
+    const deliveryNoteKey = keys.find(key => key.startsWith('prefilled_deliveryNote_'));
+    if (deliveryNoteKey) {
+      try {
+        const prefilledData = JSON.parse(sessionStorage.getItem(deliveryNoteKey));
+        if (prefilledData && !formOpen) {
+          // For delivery notes, we can't auto-fill the form because it requires selecting manufacturing orders
+          // But we can pre-select the customer and show a toast
+          toast.info(`Client ${prefilledData.customer_name} pré-sélectionné pour la création de bon de livraison`);
+          // Clear the sessionStorage item
+          sessionStorage.removeItem(deliveryNoteKey);
+        }
+      } catch (error) {
+        console.error('Error parsing prefilled delivery note data:', error);
+        sessionStorage.removeItem(deliveryNoteKey);
+      }
+    }
+  }, [formOpen]);
+
   const createMutation = useMutation({
     mutationFn: async ({ deliveryNote, selectedOFs }) => {
       const created = await base44.entities.DeliveryNote.create(deliveryNote);

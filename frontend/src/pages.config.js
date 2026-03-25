@@ -11,6 +11,8 @@ import Invoices from './pages/Invoices';
 import Suppliers from './pages/Suppliers';
 import Users from './pages/Users';
 import Login from './pages/Login';
+import Quotes from './pages/Quotes';
+import QuoteDetails from './pages/QuoteDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +30,8 @@ export const PAGES = {
     "Suppliers": Suppliers,
     "Users": Users,
     "Login": Login,
+    "Quotes": Quotes,
+    "QuoteDetails": QuoteDetails,
 }
 
 export const pagesConfig = {

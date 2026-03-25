@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, Package } from "lucide-react";
-import { toast } from "sonner";
-import ProductCard from '@/components/products/ProductCard';
+import { Plus } from "lucide-react";
 import ProductForm from '@/components/products/ProductForm';
+import ProductList from '@/components/products/ProductList';
+import { useProductActions } from '@/components/products/hooks/useProductActions';
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,34 +18,83 @@ export default function Products() {
     queryKey: ['products'],
     queryFn: () => base44.entities.Product.list(),
   });
+  
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
   });
 
-  const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Product.create(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); toast.success('Produit créé'); setFormOpen(false); },
-  });
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Product.update(id, data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); toast.success('Produit mis à jour'); setFormOpen(false); setEditingProduct(null); },
-  });
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Product.delete(id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); toast.success('Produit supprimé'); },
-  });
+  // Utiliser le hook d'actions
+  const {
+    createMutation,
+    updateMutation,
+    deleteProduct,
+    isLoading: actionsLoading
+  } = useProductActions();
+
+  // Check for prefilled data from customer details page
+  React.useEffect(() => {
+    // Look for any prefilled product data in sessionStorage
+    const keys = Object.keys(sessionStorage);
+    console.log(`[DEBUG Products.jsx] Checking sessionStorage keys:`, keys);
+    const productKey = keys.find(key => key.startsWith('prefilled_product_'));
+    console.log(`[DEBUG Products.jsx] Found productKey:`, productKey);
+    
+    if (productKey) {
+      try {
+        const prefilledData = JSON.parse(sessionStorage.getItem(productKey));
+        console.log(`[DEBUG Products.jsx] Parsed prefilled data:`, prefilledData);
+        console.log(`[DEBUG Products.jsx] formOpen state:`, formOpen);
+        
+        if (prefilledData && !formOpen) {
+          console.log(`[DEBUG Products.jsx] Setting editing product and opening form`);
+          // Set the prefilled data as editing product to auto-open form
+          setEditingProduct({
+            ...prefilledData,
+            // Ensure we have required fields
+            name: prefilledData.name || '',
+            reference: prefilledData.reference || '',
+            category: prefilledData.category || 'produit_fini',
+            customer_codes: prefilledData.customer_codes || [],
+            buy_price: prefilledData.buy_price || 0,
+            sell_price: prefilledData.sell_price || 0,
+            stock_quantity: prefilledData.stock_quantity || 0,
+            min_stock: prefilledData.min_stock || 0,
+            description: prefilledData.description || '',
+          });
+          setFormOpen(true);
+          // Clear the sessionStorage item
+          sessionStorage.removeItem(productKey);
+          console.log(`[DEBUG Products.jsx] Removed sessionStorage key:`, productKey);
+        }
+      } catch (error) {
+        console.error('[DEBUG Products.jsx] Error parsing prefilled product data:', error);
+        sessionStorage.removeItem(productKey);
+      }
+    }
+  }, [formOpen]);
 
   const handleSave = (data) => {
-    if (editingProduct) updateMutation.mutate({ id: editingProduct.id, data });
-    else createMutation.mutate(data);
+    if (editingProduct) {
+      updateMutation.mutate({ id: editingProduct.id || editingProduct._id, data }, {
+        onSuccess: () => {
+          setFormOpen(false);
+          setEditingProduct(null);
+        }
+      });
+    } else {
+      createMutation.mutate(data, {
+        onSuccess: () => {
+          setFormOpen(false);
+        }
+      });
+    }
   };
 
-  const filtered = products.filter(p => {
-    const matchSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase()) || p.reference?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCat = categoryFilter === 'all' || p.category === categoryFilter;
-    return matchSearch && matchCat;
-  });
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setFormOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -58,48 +104,38 @@ export default function Products() {
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Produits</h1>
             <p className="text-slate-500 mt-1">Gérez votre catalogue de produits</p>
           </div>
-          <Button onClick={() => { setEditingProduct(null); setFormOpen(true); }} className="bg-slate-900 hover:bg-slate-800">
+          <Button 
+            onClick={() => { 
+              setEditingProduct(null); 
+              setFormOpen(true); 
+            }} 
+            className="bg-slate-900 hover:bg-slate-800"
+            disabled={actionsLoading}
+          >
             <Plus className="w-4 h-4 mr-2" /> Nouveau produit
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Rechercher un produit..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 bg-white" />
-          </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-full sm:w-48 bg-white"><SelectValue placeholder="Catégorie" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes catégories</SelectItem>
-              <SelectItem value="matiere_premiere">Matières premières</SelectItem>
-              <SelectItem value="semi_fini">Semi-finis</SelectItem>
-              <SelectItem value="produit_fini">Produits finis</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <ProductList 
+          products={products}
+          isLoading={isLoading}
+          searchTerm={searchTerm}
+          categoryFilter={categoryFilter}
+          onSearchChange={setSearchTerm}
+          onCategoryFilterChange={setCategoryFilter}
+          onEdit={handleEdit}
+          onDelete={deleteProduct}
+          showFilters={true}
+        />
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-64 rounded-xl" />)}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-600">Aucun produit trouvé</h3>
-            <p className="text-slate-400 mt-1">Commencez par créer votre premier produit</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(product => (
-              <ProductCard key={product.id} product={product}
-                onEdit={(p) => { setEditingProduct(p); setFormOpen(true); }}
-                onDelete={(p) => { if (confirm(`Supprimer "${p.name}" ?`)) deleteMutation.mutate(p.id); }} />
-            ))}
-          </div>
-        )}
-
-        <ProductForm open={formOpen} onOpenChange={setFormOpen} product={editingProduct} onSave={handleSave} allProducts={products} customers={customers} />
+        <ProductForm 
+          open={formOpen} 
+          onOpenChange={setFormOpen} 
+          product={editingProduct} 
+          onSave={handleSave} 
+          allProducts={products} 
+          customers={customers} 
+        />
       </div>
     </div>
   );

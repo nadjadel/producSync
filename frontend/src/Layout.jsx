@@ -18,7 +18,8 @@ import {
   FileText,
   Building2,
   LogOut,
-  UserCog
+  UserCog,
+  FilePen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -26,6 +27,7 @@ const navigation = [
   { name: 'Tableau de bord', page: 'Dashboard', icon: LayoutDashboard },
   { name: 'Clients', page: 'Customers', icon: Users },
   { name: 'Commandes', page: 'Orders', icon: ShoppingCart },
+  { name: 'Devis', page: 'Quotes', icon: FilePen },
   { name: 'Produits', page: 'Products', icon: Package },
   { name: 'Ordres de fabrication', page: 'ManufacturingOrders', icon: ClipboardList },
   { name: 'Postes de travail', page: 'Workstations', icon: Settings },

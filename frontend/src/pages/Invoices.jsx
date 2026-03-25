@@ -137,6 +137,28 @@ export default function Invoices() {
   const { data: deliveryNotes = [] } = useQuery({ queryKey: ['delivery-notes'], queryFn: () => base44.entities.DeliveryNote.list() });
   const { data: customers = [] } = useQuery({ queryKey: ['customers'], queryFn: () => base44.entities.Customer.list() });
 
+  // Check for prefilled data from customer details page
+  React.useEffect(() => {
+    // Look for any prefilled invoice data in sessionStorage
+    const keys = Object.keys(sessionStorage);
+    const invoiceKey = keys.find(key => key.startsWith('prefilled_invoice_'));
+    if (invoiceKey) {
+      try {
+        const prefilledData = JSON.parse(sessionStorage.getItem(invoiceKey));
+        if (prefilledData && !formOpen) {
+          // For invoices, we can't auto-fill the form because it requires selecting delivery notes
+          // But we can pre-select the customer and show a toast
+          toast.info(`Client ${prefilledData.customer_name} pré-sélectionné pour la création de facture`);
+          // Clear the sessionStorage item
+          sessionStorage.removeItem(invoiceKey);
+        }
+      } catch (error) {
+        console.error('Error parsing prefilled invoice data:', error);
+        sessionStorage.removeItem(invoiceKey);
+      }
+    }
+  }, [formOpen]);
+
   const createMutation = useMutation({
     mutationFn: async ({ invoice, selectedDNs }) => {
       const created = await base44.entities.Invoice.create(invoice);

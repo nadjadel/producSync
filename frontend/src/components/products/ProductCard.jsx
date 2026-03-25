@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, Trash2, Package, AlertTriangle } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Package, AlertTriangle, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_CONFIG = {
@@ -19,6 +20,7 @@ export default function ProductCard({ product, onEdit, onDelete }) {
     product.stock_quantity <= product.stock_minimum;
 
   const catConfig = CATEGORY_CONFIG[product.category] || CATEGORY_CONFIG.produit_fini;
+  const productId = product.id || product._id;
 
   return (
     <Card className="group relative overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-white">
@@ -30,6 +32,11 @@ export default function ProductCard({ product, onEdit, onDelete }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link to={`/products/${productId}`} className="flex items-center">
+                <Eye className="w-4 h-4 mr-2" /> Voir détails
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(product)}>
               <Pencil className="w-4 h-4 mr-2" /> Modifier
             </DropdownMenuItem>
@@ -54,7 +61,9 @@ export default function ProductCard({ product, onEdit, onDelete }) {
                 </Badge>
               )}
             </div>
-            <h3 className="font-semibold text-slate-900 truncate">{product.name}</h3>
+            <Link to={`/products/${productId}`} className="font-semibold text-slate-900 truncate hover:text-blue-600 hover:underline block">
+              {product.name}
+            </Link>
             <p className="text-sm text-slate-500">{product.reference}</p>
             {product.customer_code && (
               <p className="text-xs text-slate-400 mt-0.5">Client: {product.customer_code}</p>

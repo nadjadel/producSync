@@ -60,6 +60,57 @@ function App() {
               );
             }
             
+            // Pour QuoteDetails, route avec paramètre id
+            if (name === 'QuoteDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/quotes/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
+            // Pour OrderDetails, route avec paramètre id
+            if (name === 'OrderDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/orders/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
+            // Pour ProductDetails, route avec paramètre id
+            if (name === 'ProductDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/products/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+            
             // Pour les autres pages, protéger avec authentification
             return (
               <Route

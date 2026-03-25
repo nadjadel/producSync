@@ -41,7 +41,8 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
   const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 
   const handleCustomerChange = async (customerId) => {
-    const customer = customers.find(c => c.id === customerId);
+    // Try to find customer by id or _id
+    const customer = customers.find(c => c.id === customerId || c._id === customerId);
     if (customer && !product) {
       const reference = await getNextNumber(`PRODUCT_${customer.code}`);
       setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer.code, reference }));
@@ -57,7 +58,8 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
   const updateBomItem = (index, field, value) => {
     const newBom = [...formData.bom];
     if (field === 'product_id') {
-      const sel = allProducts.find(p => p.id === value);
+      // Try to find product by id or _id
+      const sel = allProducts.find(p => p.id === value || p._id === value);
       newBom[index] = { ...newBom[index], product_id: value, product_name: sel?.name || '' };
     } else {
       newBom[index] = { ...newBom[index], [field]: value };
@@ -86,7 +88,7 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
             <Select value={formData.customer_id} onValueChange={handleCustomerChange}>
               <SelectTrigger><SelectValue placeholder="Sélectionner un client" /></SelectTrigger>
               <SelectContent>
-                {customers.map(c => <SelectItem key={c.id} value={c.id}>{c.code} — {c.company_name}</SelectItem>)}
+                {customers.map(c => <SelectItem key={c.id || c._id} value={c.id || c._id}>{c.code} — {c.company_name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -162,8 +164,8 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
                       <Select value={item.product_id} onValueChange={(v) => updateBomItem(index, 'product_id', v)}>
                         <SelectTrigger className="flex-1"><SelectValue placeholder="Sélectionner un composant" /></SelectTrigger>
                         <SelectContent>
-                          {allProducts.filter(p => p.id !== product?.id).map(p => (
-                            <SelectItem key={p.id} value={p.id}>{p.reference} — {p.name}</SelectItem>
+                          {allProducts.filter(p => (p.id !== product?.id && p.id !== product?._id) && (p._id !== product?.id && p._id !== product?._id)).map(p => (
+                            <SelectItem key={p.id || p._id} value={p.id || p._id}>{p.reference} — {p.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
