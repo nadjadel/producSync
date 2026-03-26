@@ -135,7 +135,9 @@ export default function OrderForm({ open, onOpenChange, order, onSave, products,
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    // Filtrer les propriétés MongoDB et autres champs non désirés
+    const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+    onSave(cleanData);
   };
 
   return (

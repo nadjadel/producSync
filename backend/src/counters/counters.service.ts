@@ -20,21 +20,21 @@ export class CountersService {
     }
 
     const defaultFormats: Record<string, string> = {
-      'OF': 'OF+XXXXXXXX',
-      'CO': 'CO+XXXXXXXX',
-      'DE': 'DE+XXXXXXXX',
-      'BL': 'BL+XXXXXXXX',
-      'FA': 'FA+XXXXXXXX',
-      'AV': 'AV+XXXXXXXX',
-      'SUPPLIER': 'SU+XXXXXXXX',
-      'SUPPLIER_ORDER': 'ST+XXXXXXXX',
+      'OF': 'OFXXXXXXXX',
+      'CO': 'COXXXXXXXX',
+      'DE': 'DEXXXXXXXX',
+      'BL': 'BLXXXXXXXX',
+      'FA': 'FAXXXXXXXX',
+      'AV': 'AVXXXXXXXX',
+      'SUPPLIER': 'SUXXXXXXXX',
+      'SUPPLIER_ORDER': 'STXXXXXXXX',
       'CUSTOMER': 'XXX', // 3 lettres générées
-      'PRODUCT': 'XXX+XXXXXXXX', // 3 lettres customer + 8 chiffres
+      'PRODUCT': 'XXXXXXXXXXX', // 3 lettres customer + 8 chiffres
     };
 
     const counter = new this.counterModel({
       counter_type: counterType,
-      format: format || defaultFormats[counterType] || 'XXX+XXXXXXXX',
+      format: format || defaultFormats[counterType] || 'XXXXXXXXXXX',
       last_number: 0,
       increment: 1,
       reset_yearly: false, // Pas de réinitialisation annuelle pour les formats sans année

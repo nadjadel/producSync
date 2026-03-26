@@ -50,7 +50,9 @@ export default function CustomerForm({ open, onOpenChange, customer, onSave, exi
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    // Filtrer les propriétés MongoDB et autres champs non désirés
+    const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+    onSave(cleanData);
   };
 
   return (

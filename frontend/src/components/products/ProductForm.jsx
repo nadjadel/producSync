@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
-import { getNextNumber } from '@/components/utils/counterUtils';
+import { counterService } from '@/api/counterService';
 
 const CATEGORIES = [
   { value: 'matiere_premiere', label: 'Matière première' },
@@ -44,7 +44,7 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
     // Try to find customer by id or _id
     const customer = customers.find(c => c.id === customerId || c._id === customerId);
     if (customer && !product) {
-      const reference = await getNextNumber(`PRODUCT_${customer.code}`);
+      const reference = await counterService.getNextProductCode(customer.code);
       setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer.code, reference }));
     } else {
       setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer?.code || '' }));
@@ -71,7 +71,12 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
     ...prev, bom: prev.bom.filter((_, i) => i !== index)
   }));
 
-  const handleSubmit = (e) => { e.preventDefault(); onSave(formData); };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Filtrer les propriétés MongoDB et autres champs non désirés
+    const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+    onSave(cleanData);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

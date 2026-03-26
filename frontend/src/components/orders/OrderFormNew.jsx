@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
-import { getNextNumber } from '@/components/utils/counterUtils';
+import { counterService } from '@/api/counterService';
 
 export default function OrderFormNew({ open, onOpenChange, order, onSave, customers, products }) {
   const [formData, setFormData] = useState({
@@ -39,7 +39,7 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
       });
     } else if (open && !order) {
       (async () => {
-        const newOrderNumber = await getNextNumber('CO');
+        const newOrderNumber = await counterService.getNextNumber('CO');
         setFormData({
           order_number: newOrderNumber,
           customer_id: '',

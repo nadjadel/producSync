@@ -47,7 +47,9 @@ export default function SupplierForm({ open, onOpenChange, supplier, onSave }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    // Filtrer les propriétés MongoDB et autres champs non désirés
+    const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+    onSave(cleanData);
   };
 
   return (

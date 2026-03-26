@@ -25,7 +25,12 @@ export default function WorkstationForm({ open, onOpenChange, workstation, onSav
   }, [workstation, open]);
 
   const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
-  const handleSubmit = (e) => { e.preventDefault(); onSave(formData); };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Filtrer les propriétés MongoDB et autres champs non désirés
+    const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+    onSave(cleanData);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

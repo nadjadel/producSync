@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
-import { getNextNumber } from '@/components/utils/counterUtils';
+import { counterService } from '@/api/counterService';
 
 const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products = [], prefilledData = null }) => {
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
     } else if (open && !quote) {
       // Mode création : initialiser avec données pré-remplies ou valeurs par défaut
       (async () => {
-        const quoteNumber = await getNextNumber('DE');
+        const quoteNumber = await counterService.getNextNumber('DE');
         const validUntil = new Date();
         validUntil.setDate(validUntil.getDate() + 30);
         
@@ -126,7 +126,10 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
                 value={formData.quote_number} 
                 onChange={(e) => setFormData(p => ({ ...p, quote_number: e.target.value }))} 
                 required 
+                disabled={!quote} // Lecture seule en création, modifiable en édition
+                className="bg-slate-50"
               />
+              <p className="text-xs text-slate-500">Généré automatiquement</p>
             </div>
             <div className="space-y-2">
               <Label>Date *</Label>

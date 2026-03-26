@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +27,9 @@ import {
   User
 } from "lucide-react";
 import { toast } from "sonner";
+import QuoteForm from '@/components/quotes/QuoteForm';
+import OrderFormNew from '@/components/orders/OrderFormNew';
+import ProductForm from '@/components/products/ProductForm';
 
 const STATUS_CONFIG = {
   active: { label: 'Actif', class: 'bg-emerald-100 text-emerald-700' },
@@ -46,6 +49,11 @@ export default function CustomerDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [productModalOpen, setProductModalOpen] = useState(false);
+  const [prefilledData, setPrefilledData] = useState(null);
+  const queryClient = useQueryClient();
 
   // Fetch customer details
   const { data: customer, isLoading: isLoadingCustomer } = useQuery({
@@ -85,10 +93,49 @@ export default function CustomerDetails() {
     enabled: !!id && activeTab === 'products',
   });
 
+  // Mutations for creating documents
+  const createQuoteMutation = useMutation({
+    mutationFn: (data) => base44.entities.Quote.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quotes', id] });
+      setQuoteModalOpen(false);
+      setPrefilledData(null);
+      toast.success('Devis créé avec succès');
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de la création du devis: ${error.message}`);
+    }
+  });
+
+  const createOrderMutation = useMutation({
+    mutationFn: (data) => base44.entities.Order.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders', id] });
+      setOrderModalOpen(false);
+      setPrefilledData(null);
+      toast.success('Commande créée avec succès');
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de la création de la commande: ${error.message}`);
+    }
+  });
+
+  const createProductMutation = useMutation({
+    mutationFn: (data) => base44.entities.Product.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setProductModalOpen(false);
+      setPrefilledData(null);
+      toast.success('Produit créé avec succès');
+    },
+    onError: (error) => {
+      toast.error(`Erreur lors de la création du produit: ${error.message}`);
+    }
+  });
+
   const handleCreateDocument = (type) => {
     if (!customer) return;
     
-    let path = '';
     let defaultData = {
       customer_id: id,
       customer_code: customer.code,
@@ -101,56 +148,47 @@ export default function CustomerDetails() {
 
     switch (type) {
       case 'quote':
-        path = '/quotes/new';
         defaultData = {
           ...defaultData,
           title: `Devis pour ${customer.company_name}`,
           status: 'draft',
           valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         };
+        setPrefilledData(defaultData);
+        setQuoteModalOpen(true);
         break;
       case 'order':
-        path = '/orders/new';
         defaultData = {
           ...defaultData,
           title: `Commande pour ${customer.company_name}`,
           status: 'draft',
           expected_delivery_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         };
+        setPrefilledData(defaultData);
+        setOrderModalOpen(true);
         break;
       case 'product':
-        path = '/products/new';
         defaultData = {
           ...defaultData,
           name: `Produit pour ${customer.company_name}`,
-          customer_codes: [customer.code],
+          customer_id: id, // Use customer_id instead of customer_codes
+          customer_code: customer.code,
         };
+        setPrefilledData(defaultData);
+        setProductModalOpen(true);
         break;
       case 'invoice':
-        path = '/invoices/new';
-        defaultData = {
-          ...defaultData,
-          title: `Facture pour ${customer.company_name}`,
-          status: 'draft',
-          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        };
+        // For invoices, we still navigate because the form requires selecting delivery notes
+        navigate('/invoices');
+        toast.info(`Client ${customer.company_name} pré-sélectionné pour la création de facture`);
         break;
       case 'deliveryNote':
-        path = '/deliverynotes/new';
-        defaultData = {
-          ...defaultData,
-          title: `Bon de livraison pour ${customer.company_name}`,
-          status: 'draft',
-          delivery_date: new Date().toISOString().split('T')[0],
-        };
+        // For delivery notes, we still navigate because the form requires selecting manufacturing orders
+        navigate('/deliverynotes');
+        toast.info(`Client ${customer.company_name} pré-sélectionné pour la création de bon de livraison`);
         break;
     }
 
-    // Store default data in sessionStorage for the form
-    sessionStorage.setItem(`prefilled_${type}_${id}`, JSON.stringify(defaultData));
-    
-    // Navigate to the creation page
-    navigate(path, { state: { prefilledData: defaultData } });
     toast.success(`Création d'un ${type === 'quote' ? 'devis' : type === 'order' ? 'commande' : type === 'product' ? 'produit' : type === 'invoice' ? 'facture' : 'bon de livraison'} pré-rempli`);
   };
 
@@ -781,6 +819,37 @@ export default function CustomerDetails() {
           </div>
         </div>
       </div>
+
+      {/* Quote Form Modal */}
+      <QuoteForm 
+        open={quoteModalOpen} 
+        onOpenChange={setQuoteModalOpen} 
+        quote={null}
+        onSave={(data) => createQuoteMutation.mutate(data)}
+        customers={customer ? [customer] : []}
+        products={products}
+        prefilledData={prefilledData}
+      />
+
+      {/* Order Form Modal */}
+      <OrderFormNew 
+        open={orderModalOpen} 
+        onOpenChange={setOrderModalOpen} 
+        order={null}
+        onSave={(data) => createOrderMutation.mutate(data)}
+        customers={customer ? [customer] : []}
+        products={products}
+      />
+
+      {/* Product Form Modal */}
+      <ProductForm 
+        open={productModalOpen} 
+        onOpenChange={setProductModalOpen} 
+        product={null}
+        onSave={(data) => createProductMutation.mutate(data)}
+        allProducts={products}
+        customers={customer ? [customer] : []}
+      />
     </div>
   );
 }
