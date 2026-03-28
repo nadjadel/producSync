@@ -30,8 +30,9 @@ class InvoiceItemDto {
 }
 
 export class CreateInvoiceDto {
+  @IsOptional()
   @IsString()
-  invoice_number: string;
+  invoice_number?: string;
 
   @IsDateString()
   invoice_date: string;

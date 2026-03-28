@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { getNextNumber } from '@/components/utils/counterUtils';
 
 export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufacturingOrders = [], customers = [] }) {
   const [selectedOFs, setSelectedOFs] = useState([]);
@@ -40,10 +39,8 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
     if (selectedOFs.length === 0) return alert('Veuillez sélectionner au moins un OF');
 
     const firstOF = selectedOFs[0];
-    const deliveryNumber = await getNextNumber('BL');
 
     onSave({
-      delivery_number: deliveryNumber,
       customer_id: firstOF.customer_order_id || '',
       customer_name: firstOF.customer_order_number || 'Client',
       order_id: firstOF.customer_order_id,

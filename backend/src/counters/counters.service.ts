@@ -28,6 +28,7 @@ export class CountersService {
       'AV': 'AVXXXXXXXX',
       'SUPPLIER': 'SUXXXXXXXX',
       'SUPPLIER_ORDER': 'STXXXXXXXX',
+      'ST': 'STXXXXXXXX',
       'CUSTOMER': 'XXX', // 3 lettres générées
       'PRODUCT': 'XXXXXXXXXXX', // 3 lettres customer + 8 chiffres
     };

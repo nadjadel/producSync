@@ -8,8 +8,8 @@ export class Counter {
   @Prop({ 
     required: true, 
     unique: true,
-    enum: ['OF', 'CO', 'DE', 'BL', 'FA', 'AV', 'PRODUCT', 'CUSTOMER', 'SUPPLIER'],
-    description: 'Type de compteur (OF=Ordre Fabrication, CO=Commande, DE=Devis, BL=Bon Livraison, FA=Facture, AV=Avoir, PRODUCT=Produit, CUSTOMER=Client, SUPPLIER=Fournisseur)'
+    enum: ['OF', 'CO', 'DE', 'BL', 'FA', 'AV', 'PRODUCT', 'CUSTOMER', 'SUPPLIER', 'SUPPLIER_ORDER', 'ST'],
+    description: 'Type de compteur (OF=Ordre Fabrication, CO=Commande, DE=Devis, BL=Bon Livraison, FA=Facture, AV=Avoir, PRODUCT=Produit, CUSTOMER=Client, SUPPLIER=Fournisseur, ST=Sous-traitance)'
   })
   counter_type: string;
 

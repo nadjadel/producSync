@@ -15,7 +15,6 @@ import { Plus, Search, MoreVertical, Trash2, FileMinus, CheckCircle } from "luci
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { getNextNumber } from '@/components/utils/counterUtils';
 
 const STATUS_CONFIG = {
   draft:   { label: 'Brouillon', class: 'bg-slate-100 text-slate-700' },
@@ -30,14 +29,6 @@ function CreditNoteForm({ open, onOpenChange, onSave, invoices = [], customers =
     reason: '', items: [], status: 'draft',
   });
 
-  React.useEffect(() => {
-    if (open) {
-      (async () => {
-        const avNumber = await getNextNumber('AV');
-        setFormData(prev => ({ ...prev, credit_note_number: avNumber }));
-      })();
-    }
-  }, [open]);
 
   const handleCustomerChange = (customerId) => {
     const customer = customers.find(c => c.id === customerId);
@@ -71,7 +62,7 @@ function CreditNoteForm({ open, onOpenChange, onSave, invoices = [], customers =
         <DialogHeader><DialogTitle className="text-xl font-semibold">Nouvel avoir</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2"><Label>N° Avoir</Label><Input value={formData.credit_note_number} readOnly className="bg-slate-50" /></div>
+            <div className="space-y-2"><Label>N° Avoir</Label><Input value="" placeholder="Généré automatiquement" readOnly className="bg-slate-50" /></div>
             <div className="space-y-2"><Label>Date</Label><Input type="date" value={formData.credit_note_date} onChange={(e) => setFormData(p => ({ ...p, credit_note_date: e.target.value }))} /></div>
           </div>
 

@@ -16,7 +16,6 @@ import { Plus, Search, MoreVertical, Trash2, FileText, Send, CheckCircle2, XCirc
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { getNextNumber } from '@/components/utils/counterUtils';
 
 const STATUS_CONFIG = {
   draft:     { label: 'Brouillon', class: 'bg-slate-100 text-slate-700' },
@@ -42,7 +41,6 @@ function InvoiceForm({ open, onOpenChange, onSave, deliveryNotes = [], customers
     e.preventDefault();
     if (selectedBLs.length === 0) return alert('Sélectionnez au moins un BL');
     const customer = customers.find(c => c.id === selectedCustomerId);
-    const invoiceNumber = await getNextNumber('FA');
     const items = selectedBLs.flatMap(bl => bl.items || []);
     const total_ht = items.reduce((sum, item) => sum + (item.total || 0), 0);
     const total_vat = total_ht * 0.2;
@@ -52,7 +50,6 @@ function InvoiceForm({ open, onOpenChange, onSave, deliveryNotes = [], customers
     dueDate.setDate(dueDate.getDate() + paymentDays);
 
     onSave({
-      invoice_number: invoiceNumber,
       invoice_date: invoiceDate,
       customer_id: selectedCustomerId,
       customer_name: customer?.company_name || '',

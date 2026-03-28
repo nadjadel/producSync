@@ -33,15 +33,11 @@ export class InvoicesService {
   }
 
   async create(createInvoiceDto: CreateInvoiceDto): Promise<InvoiceDocument> {
-    const existingInvoice = await this.invoiceModel.findOne({
-      invoice_number: createInvoiceDto.invoice_number,
-    }).exec();
-
-    if (existingInvoice) {
-      throw new ConflictException('Une facture avec ce numéro existe déjà');
-    }
-
-    const invoice = new this.invoiceModel(createInvoiceDto);
+    const generatedInvoiceNumber = await this.countersService.getNextNumber('FA');
+    const invoice = new this.invoiceModel({
+      ...createInvoiceDto,
+      invoice_number: generatedInvoiceNumber,
+    });
     this.calculateTotals(invoice);
     return invoice.save();
   }
@@ -70,15 +66,7 @@ export class InvoicesService {
   }
 
   async update(id: string, updateInvoiceDto: UpdateInvoiceDto): Promise<InvoiceDocument> {
-    if (updateInvoiceDto.invoice_number) {
-      const existingInvoice = await this.invoiceModel.findOne({
-        invoice_number: updateInvoiceDto.invoice_number,
-        _id: { $ne: id },
-      }).exec();
-      if (existingInvoice) {
-        throw new ConflictException('Une facture avec ce numéro existe déjà');
-      }
-    }
+    delete updateInvoiceDto.invoice_number;
 
     const invoice = await this.invoiceModel
       .findByIdAndUpdate(id, updateInvoiceDto, { new: true })
