@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from "sonner";
-import { getNextNumber } from '@/components/utils/counterUtils';
 
 export const useQuoteActions = () => {
   const queryClient = useQueryClient();
@@ -45,9 +44,8 @@ export const useQuoteActions = () => {
   // Mutation pour convertir un devis en commande
   const convertToOrderMutation = useMutation({
     mutationFn: async (quote) => {
-      const orderNumber = await getNextNumber('CO');
+      // Le numéro CO est généré par le backend
       const order = await base44.entities.Order.create({
-        order_number: orderNumber,
         customer_id: quote.customer_id,
         customer_name: quote.customer_name,
         status: 'draft',
@@ -57,19 +55,17 @@ export const useQuoteActions = () => {
         total_vat: quote.total_vat,
         total_ttc: quote.total_ttc,
       });
-      
-      await base44.entities.Quote.update(quote.id, { 
-        status: 'accepted', 
-        order_id: order.id 
+
+      await base44.entities.Quote.update(quote.id, {
+        status: 'accepted',
+        order_id: order.id
       });
 
-      // Créer des ordres de fabrication pour chaque ligne
-      const ofPromises = (quote.items || []).map(async item => {
-        const ofNumber = await getNextNumber('OF');
-        return base44.entities.ManufacturingOrder.create({
-          order_number: ofNumber,
+      // Créer des ordres de fabrication pour chaque ligne (numéros OF générés par le backend)
+      const ofPromises = (quote.items || []).map(item =>
+        base44.entities.ManufacturingOrder.create({
           customer_order_id: order.id,
-          customer_order_number: orderNumber,
+          customer_order_number: order.order_number,
           product_id: item.product_id,
           product_name: item.product_name,
           quantity_planned: item.quantity,
@@ -78,8 +74,8 @@ export const useQuoteActions = () => {
           priority: 'medium',
           ready_for_delivery: false,
           delivered: false
-        });
-      });
+        })
+      );
 
       await Promise.all(ofPromises);
       return order;

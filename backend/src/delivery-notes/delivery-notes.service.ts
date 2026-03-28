@@ -9,16 +9,22 @@ import { Model } from 'mongoose';
 import { DeliveryNote, DeliveryNoteDocument } from './schemas/delivery-note.schema';
 import { CreateDeliveryNoteDto, UpdateDeliveryNoteDto } from './dto';
 import { ManufacturingOrder, ManufacturingOrderDocument } from '../manufacturing-orders/schemas/manufacturing-order.schema';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class DeliveryNotesService {
   constructor(
     @InjectModel(DeliveryNote.name) private deliveryNoteModel: Model<DeliveryNoteDocument>,
     @InjectModel(ManufacturingOrder.name) private manufacturingOrderModel: Model<ManufacturingOrderDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
   async create(createDeliveryNoteDto: CreateDeliveryNoteDto): Promise<DeliveryNoteDocument> {
-    const deliveryNote = new this.deliveryNoteModel(createDeliveryNoteDto);
+    const generatedDeliveryNumber = await this.countersService.getNextNumber('BL');
+    const deliveryNote = new this.deliveryNoteModel({
+      ...createDeliveryNoteDto,
+      delivery_number: generatedDeliveryNumber,
+    });
     this.calculateTotals(deliveryNote);
     return deliveryNote.save();
   }
@@ -47,15 +53,7 @@ export class DeliveryNotesService {
   }
 
   async update(id: string, updateDeliveryNoteDto: UpdateDeliveryNoteDto): Promise<DeliveryNoteDocument> {
-    if (updateDeliveryNoteDto.delivery_number) {
-      const existingNote = await this.deliveryNoteModel.findOne({
-        delivery_number: updateDeliveryNoteDto.delivery_number,
-        _id: { $ne: id },
-      }).exec();
-      if (existingNote) {
-        throw new ConflictException('Un bon de livraison avec ce numéro existe déjà');
-      }
-    }
+    delete updateDeliveryNoteDto.delivery_number;
 
     const deliveryNote = await this.deliveryNoteModel
       .findByIdAndUpdate(id, updateDeliveryNoteDto, { new: true })

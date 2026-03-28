@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from "sonner";
-import { getNextNumber } from '@/components/utils/counterUtils';
 
 export const useOrderActions = () => {
   const queryClient = useQueryClient();
@@ -11,13 +10,11 @@ export const useOrderActions = () => {
     mutationFn: async (data) => {
       const createdOrder = await base44.entities.Order.create(data);
       
-      // Générer des ordres de fabrication pour chaque ligne
-      const ofPromises = data.items.map(async item => {
-        const ofNumber = await getNextNumber('OF');
-        return base44.entities.ManufacturingOrder.create({
-          order_number: ofNumber,
+      // Générer des ordres de fabrication pour chaque ligne (numéro OF généré par le backend)
+      const ofPromises = data.items.map(item =>
+        base44.entities.ManufacturingOrder.create({
           customer_order_id: createdOrder.id,
-          customer_order_number: data.order_number,
+          customer_order_number: createdOrder.order_number,
           product_id: item.product_id,
           product_name: item.product_name,
           quantity_planned: item.quantity,
@@ -26,8 +23,8 @@ export const useOrderActions = () => {
           priority: 'medium',
           ready_for_delivery: false,
           delivered: false,
-        });
-      });
+        })
+      );
       
       await Promise.all(ofPromises);
       return createdOrder;

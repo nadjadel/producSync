@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { getNextNumber } from '@/components/utils/counterUtils';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,11 +124,7 @@ export default function OrderForm({ open, onOpenChange, order, onSave, products,
     }));
   };
 
-  const handleSubcontractToggle = async (checked) => {
-    if (checked && !formData.subcontract_number) {
-      const stNumber = await getNextNumber('ST');
-      handleChange('subcontract_number', stNumber);
-    }
+  const handleSubcontractToggle = (checked) => {
     handleChange('is_subcontracted', checked);
   };
 
