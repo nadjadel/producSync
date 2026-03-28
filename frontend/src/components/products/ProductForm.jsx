@@ -22,7 +22,7 @@ const UNITS = [
 ];
 
 const emptyForm = {
-  customer_id: '', customer_code: '', name: '', description: '',
+  customer_id: '', customer_code: '', reference: '', name: '', description: '',
   category: 'produit_fini', unit: 'piece', stock_quantity: 0, stock_minimum: 0,
   cost_price: 0, sell_price: 0, bom: [],
 };
@@ -41,12 +41,20 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
   const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 
   const handleCustomerChange = async (customerId) => {
-    // Try to find customer by id or _id
     const customer = customers.find(c => c.id === customerId || c._id === customerId);
     if (customer) {
       setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer.code }));
+      // Générer la référence automatiquement si on est en création
+      if (!product) {
+        try {
+          const reference = await counterService.getNextProductCode(customer.code);
+          setFormData(prev => ({ ...prev, reference }));
+        } catch (err) {
+          console.error('Erreur génération référence:', err);
+        }
+      }
     } else {
-      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: '' }));
+      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: '', reference: '' }));
     }
   };
 
@@ -100,6 +108,16 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
           <div className="space-y-2">
             <Label>Nom *</Label>
             <Input value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Référence</Label>
+            <Input
+              value={formData.reference}
+              onChange={(e) => handleChange('reference', e.target.value)}
+              placeholder="Générée automatiquement à la sélection du client"
+              className="bg-slate-50"
+            />
           </div>
 
           <div className="space-y-2">
