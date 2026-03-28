@@ -287,7 +287,7 @@ export default function QuoteDetails() {
                       </div>
                     )}
                     <Button variant="outline" size="sm" asChild className="w-full">
-                      <Link to={`/customers/${customer.id}`}>
+                      <Link to={`/customers/${customer.id || customer._id}`}>
                         <Eye className="w-4 h-4 mr-2" />
                         Voir la fiche client
                       </Link>
@@ -368,7 +368,7 @@ export default function QuoteDetails() {
                               </p>
                             </div>
                             <Button variant="outline" size="sm" asChild>
-                              <Link to={`/orders/${relatedOrder.id}`}>
+                              <Link to={`/orders/${relatedOrder.id || relatedOrder._id}`}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 Voir
                               </Link>
@@ -509,7 +509,7 @@ export default function QuoteDetails() {
                               </div>
                             </div>
                             <Button variant="outline" size="sm" asChild>
-                              <Link to={`/orders/${relatedOrder.id}`}>
+                              <Link to={`/orders/${relatedOrder.id || relatedOrder._id}`}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 Voir
                               </Link>

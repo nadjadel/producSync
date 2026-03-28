@@ -417,7 +417,7 @@ export default function SupplierDetails() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" onClick={() => navigate(`/products/${product.id}`)}>
+                                <Button variant="ghost" size="icon" onClick={() => navigate(`/products/${product.id || product._id}`)}>
                                   <Eye className="w-4 h-4" />
                                 </Button>
                               </TableCell>
@@ -482,7 +482,7 @@ export default function SupplierDetails() {
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" onClick={() => navigate(`/orders/${order.id}`)}>
+                                <Button variant="ghost" size="icon" onClick={() => navigate(`/orders/${order.id || order._id}`)}>
                                   <Eye className="w-4 h-4" />
                                 </Button>
                               </TableCell>

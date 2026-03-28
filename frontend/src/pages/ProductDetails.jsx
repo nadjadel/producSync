@@ -454,7 +454,7 @@ export default function ProductDetails() {
                               <TableCell>{customer.email}</TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/customers/${customer.id}`}>
+                                  <Link to={`/customers/${customer.id || customer._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
@@ -594,7 +594,7 @@ export default function ProductDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/manufacturing-orders/${mo.id}`}>
+                                  <Link to={`/manufacturing-orders/${mo.id || mo._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
