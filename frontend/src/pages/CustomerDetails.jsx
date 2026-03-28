@@ -90,7 +90,7 @@ export default function CustomerDetails() {
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
     queryKey: ['products'],
     queryFn: () => base44.entities.Product.list(),
-    enabled: !!id && activeTab === 'products',
+    enabled: !!id,
   });
 
   // Mutations for creating documents
@@ -188,8 +188,6 @@ export default function CustomerDetails() {
         toast.info(`Client ${customer.company_name} pré-sélectionné pour la création de bon de livraison`);
         break;
     }
-
-    toast.success(`Création d'un ${type === 'quote' ? 'devis' : type === 'order' ? 'commande' : type === 'product' ? 'produit' : type === 'invoice' ? 'facture' : 'bon de livraison'} pré-rempli`);
   };
 
   const copyCustomerCode = () => {
@@ -849,23 +847,25 @@ export default function CustomerDetails() {
       />
 
       {/* Order Form Modal */}
-      <OrderFormNew 
-        open={orderModalOpen} 
-        onOpenChange={setOrderModalOpen} 
+      <OrderFormNew
+        open={orderModalOpen}
+        onOpenChange={setOrderModalOpen}
         order={null}
         onSave={(data) => createOrderMutation.mutate(data)}
         customers={customer ? [customer] : []}
         products={products}
+        prefilledData={prefilledData}
       />
 
       {/* Product Form Modal */}
-      <ProductForm 
-        open={productModalOpen} 
-        onOpenChange={setProductModalOpen} 
+      <ProductForm
+        open={productModalOpen}
+        onOpenChange={setProductModalOpen}
         product={null}
         onSave={(data) => createProductMutation.mutate(data)}
         allProducts={products}
         customers={customer ? [customer] : []}
+        prefilledData={prefilledData}
       />
     </div>
   );
