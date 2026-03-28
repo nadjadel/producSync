@@ -116,7 +116,6 @@ export const counterService = {
       const response = await fetch('http://localhost:3000/api/counters/customer-code/next');
       if (response.ok) {
         const data = await response.json();
-        console.log('Customer code from API:', data.customer_code);
         return data.customer_code;
       }
     } catch (error) {

@@ -42,24 +42,16 @@ export default function Quotes() {
 
   // Check for prefilled data from customer details page
   React.useEffect(() => {
-    // Look for any prefilled quote data in sessionStorage
     const keys = Object.keys(sessionStorage);
-    console.log(`[DEBUG Quotes.jsx] Checking sessionStorage keys:`, keys);
     const quoteKey = keys.find(key => key.startsWith('prefilled_quote_'));
-    console.log(`[DEBUG Quotes.jsx] Found quoteKey:`, quoteKey);
-    
+
     if (quoteKey) {
       try {
         const prefilledData = JSON.parse(sessionStorage.getItem(quoteKey));
-        console.log(`[DEBUG Quotes.jsx] Parsed prefilled data:`, prefilledData);
-        console.log(`[DEBUG Quotes.jsx] formOpen state:`, formOpen);
-        
-        if (prefilledData && !formOpen) {
-          console.log(`[DEBUG Quotes.jsx] Setting editing quote and opening form`);
-          // Set the prefilled data as editing quote to auto-open form
+
+        if (prefilledData) {
           setEditingQuote({
             ...prefilledData,
-            // Ensure we have required fields
             quote_number: prefilledData.quote_number || '',
             customer_id: prefilledData.customer_id || '',
             customer_name: prefilledData.customer_name || '',
@@ -71,16 +63,14 @@ export default function Quotes() {
             vat_rate: prefilledData.vat_rate || 20,
           });
           setFormOpen(true);
-          // Clear the sessionStorage item
           sessionStorage.removeItem(quoteKey);
-          console.log(`[DEBUG Quotes.jsx] Removed sessionStorage key:`, quoteKey);
         }
       } catch (error) {
-        console.error('[DEBUG Quotes.jsx] Error parsing prefilled quote data:', error);
+        console.error('Error parsing prefilled quote data:', error);
         sessionStorage.removeItem(quoteKey);
       }
     }
-  }, [formOpen]);
+  }, []);
 
   const handleSave = (data) => {
     if (editingQuote) {
