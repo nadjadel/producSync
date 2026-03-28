@@ -3,9 +3,9 @@ import { AlertTriangle, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-export default function StockAlerts({ products }) {
+export default function StockAlerts({ products = [] }) {
   const lowStockProducts = products.filter(
-    p => p.stock_quantity !== undefined && p.stock_minimum !== undefined && p.stock_quantity <= p.stock_minimum
+    p => p.stock_quantity != null && p.stock_minimum != null && p.stock_quantity <= p.stock_minimum
   );
 
   return (
@@ -25,7 +25,7 @@ export default function StockAlerts({ products }) {
         ) : (
           <div className="space-y-2">
             {lowStockProducts.slice(0, 5).map((product) => (
-              <Link key={product.id} to={createPageUrl("Products")}
+              <Link key={product.id || product._id} to={createPageUrl("Products")}
                 className="flex items-center justify-between p-3 rounded-lg bg-amber-50 hover:bg-amber-100 transition-colors">
                 <div>
                   <p className="font-medium text-slate-800">{product.name}</p>

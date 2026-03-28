@@ -34,24 +34,16 @@ export default function Products() {
 
   // Check for prefilled data from customer details page
   React.useEffect(() => {
-    // Look for any prefilled product data in sessionStorage
     const keys = Object.keys(sessionStorage);
-    console.log(`[DEBUG Products.jsx] Checking sessionStorage keys:`, keys);
     const productKey = keys.find(key => key.startsWith('prefilled_product_'));
-    console.log(`[DEBUG Products.jsx] Found productKey:`, productKey);
-    
+
     if (productKey) {
       try {
         const prefilledData = JSON.parse(sessionStorage.getItem(productKey));
-        console.log(`[DEBUG Products.jsx] Parsed prefilled data:`, prefilledData);
-        console.log(`[DEBUG Products.jsx] formOpen state:`, formOpen);
-        
-        if (prefilledData && !formOpen) {
-          console.log(`[DEBUG Products.jsx] Setting editing product and opening form`);
-          // Set the prefilled data as editing product to auto-open form
+
+        if (prefilledData) {
           setEditingProduct({
             ...prefilledData,
-            // Ensure we have required fields
             name: prefilledData.name || '',
             reference: prefilledData.reference || '',
             category: prefilledData.category || 'produit_fini',
@@ -63,16 +55,14 @@ export default function Products() {
             description: prefilledData.description || '',
           });
           setFormOpen(true);
-          // Clear the sessionStorage item
           sessionStorage.removeItem(productKey);
-          console.log(`[DEBUG Products.jsx] Removed sessionStorage key:`, productKey);
         }
       } catch (error) {
-        console.error('[DEBUG Products.jsx] Error parsing prefilled product data:', error);
+        console.error('Error parsing prefilled product data:', error);
         sessionStorage.removeItem(productKey);
       }
     }
-  }, [formOpen]);
+  }, []);
 
   const handleSave = (data) => {
     if (editingProduct) {

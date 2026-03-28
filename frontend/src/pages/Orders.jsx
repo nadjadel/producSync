@@ -43,24 +43,16 @@ export default function Orders() {
 
   // Check for prefilled data from customer details page
   React.useEffect(() => {
-    // Look for any prefilled order data in sessionStorage
     const keys = Object.keys(sessionStorage);
-    console.log(`[DEBUG Orders.jsx] Checking sessionStorage keys:`, keys);
     const orderKey = keys.find(key => key.startsWith('prefilled_order_'));
-    console.log(`[DEBUG Orders.jsx] Found orderKey:`, orderKey);
-    
+
     if (orderKey) {
       try {
         const prefilledData = JSON.parse(sessionStorage.getItem(orderKey));
-        console.log(`[DEBUG Orders.jsx] Parsed prefilled data:`, prefilledData);
-        console.log(`[DEBUG Orders.jsx] formOpen state:`, formOpen);
-        
-        if (prefilledData && !formOpen) {
-          console.log(`[DEBUG Orders.jsx] Setting editing order and opening form`);
-          // Set the prefilled data as editing order to auto-open form
+
+        if (prefilledData) {
           setEditingOrder({
             ...prefilledData,
-            // Ensure we have required fields
             order_number: prefilledData.order_number || '',
             customer_id: prefilledData.customer_id || '',
             customer_name: prefilledData.customer_name || '',
@@ -71,16 +63,14 @@ export default function Orders() {
             notes: prefilledData.notes || '',
           });
           setFormOpen(true);
-          // Clear the sessionStorage item
           sessionStorage.removeItem(orderKey);
-          console.log(`[DEBUG Orders.jsx] Removed sessionStorage key:`, orderKey);
         }
       } catch (error) {
-        console.error('[DEBUG Orders.jsx] Error parsing prefilled order data:', error);
+        console.error('Error parsing prefilled order data:', error);
         sessionStorage.removeItem(orderKey);
       }
     }
-  }, [formOpen]);
+  }, []);
 
   const handleSave = (data) => {
     if (editingOrder) {
