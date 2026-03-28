@@ -17,7 +17,7 @@ const STATUS_LABELS = {
   cancelled: 'Annulé',
 };
 
-export default function OrderStatusChart({ orders }) {
+export default function OrderStatusChart({ orders = [] }) {
   const statusCounts = orders.reduce((acc, order) => {
     acc[order.status] = (acc[order.status] || 0) + 1;
     return acc;

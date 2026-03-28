@@ -14,7 +14,7 @@ const STATUS_CONFIG = {
   cancelled:   { label: 'Annulé',    class: 'bg-rose-100 text-rose-700' },
 };
 
-export default function RecentOrders({ orders }) {
+export default function RecentOrders({ orders = [] }) {
   const recentOrders = orders.slice(0, 5);
 
   return (
@@ -31,7 +31,7 @@ export default function RecentOrders({ orders }) {
         ) : (
           <div className="space-y-3">
             {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
+              <div key={order.id || order._id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
                     <span className="font-semibold text-slate-900">{order.order_number}</span>
