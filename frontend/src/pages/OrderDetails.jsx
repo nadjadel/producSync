@@ -280,7 +280,7 @@ export default function OrderDetails() {
                       </div>
                     )}
                     <Button variant="outline" size="sm" asChild className="w-full">
-                      <Link to={`/customers/${customer.id}`}>
+                      <Link to={`/customers/${customer.id || customer._id}`}>
                         <Eye className="w-4 h-4 mr-2" />
                         Voir la fiche client
                       </Link>
@@ -544,7 +544,7 @@ export default function OrderDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/manufacturing-orders/${mo.id}`}>
+                                  <Link to={`/manufacturing-orders/${mo.id || mo._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
@@ -613,7 +613,7 @@ export default function OrderDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/delivery-notes/${note.id}`}>
+                                  <Link to={`/delivery-notes/${note.id || note._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>

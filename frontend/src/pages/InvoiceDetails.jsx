@@ -555,7 +555,7 @@ export default function InvoiceDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/creditnotes/${creditNote.id}`}>
+                                  <Link to={`/creditnotes/${creditNote.id || creditNote._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>

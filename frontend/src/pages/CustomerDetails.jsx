@@ -544,7 +544,7 @@ export default function CustomerDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/quotes/${quote.id}`}>
+                                  <Link to={`/quotes/${quote.id || quote._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
@@ -641,7 +641,7 @@ export default function CustomerDetails() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <Button variant="ghost" size="icon" asChild>
-                                    <Link to={`/orders/${order.id}`}>
+                                    <Link to={`/orders/${order.id || order._id}`}>
                                       <Eye className="w-4 h-4" />
                                     </Link>
                                   </Button>
@@ -721,7 +721,7 @@ export default function CustomerDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/invoices/${invoice.id}`}>
+                                  <Link to={`/invoices/${invoice.id || invoice._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
@@ -803,7 +803,7 @@ export default function CustomerDetails() {
                               </TableCell>
                               <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/deliverynotes/${note.id}`}>
+                                  <Link to={`/deliverynotes/${note.id || note._id}`}>
                                     <Eye className="w-4 h-4" />
                                   </Link>
                                 </Button>
