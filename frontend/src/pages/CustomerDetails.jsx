@@ -135,46 +135,32 @@ export default function CustomerDetails() {
 
   const handleCreateDocument = (type) => {
     if (!customer) return;
-    
-    let defaultData = {
-      customer_id: id,
-      customer_code: customer.code,
-      customer_name: customer.company_name,
-      customer_email: customer.email,
-      customer_address: customer.address,
-      customer_city: customer.city,
-      customer_postal_code: customer.postal_code,
-    };
 
     switch (type) {
       case 'quote':
-        defaultData = {
-          ...defaultData,
-          title: `Devis pour ${customer.company_name}`,
+        setPrefilledData({
+          customer_id: id,
+          customer_name: customer.company_name,
           status: 'draft',
           valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        };
-        setPrefilledData(defaultData);
+        });
         setQuoteModalOpen(true);
         break;
       case 'order':
-        defaultData = {
-          ...defaultData,
-          title: `Commande pour ${customer.company_name}`,
+        setPrefilledData({
+          customer_id: id,
+          customer_name: customer.company_name,
           status: 'draft',
           expected_delivery_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        };
-        setPrefilledData(defaultData);
+        });
         setOrderModalOpen(true);
         break;
       case 'product':
-        defaultData = {
-          ...defaultData,
-          name: `Produit pour ${customer.company_name}`,
-          customer_id: id, // Use customer_id instead of customer_codes
+        setPrefilledData({
+          customer_id: id,
           customer_code: customer.code,
-        };
-        setPrefilledData(defaultData);
+          name: `Produit pour ${customer.company_name}`,
+        });
         setProductModalOpen(true);
         break;
       case 'invoice':
