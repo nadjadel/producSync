@@ -8,15 +8,35 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quote, QuoteDocument } from './schemas/quote.schema';
 import { CreateQuoteDto, UpdateQuoteDto } from './dto';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class QuotesService {
   constructor(
     @InjectModel(Quote.name) private quoteModel: Model<QuoteDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
   async create(createQuoteDto: CreateQuoteDto): Promise<QuoteDocument> {
-    const quote = new this.quoteModel(createQuoteDto);
+    // Générer le numéro de devis automatiquement
+    const generatedQuoteNumber = await this.countersService.getNextNumber('DE');
+    
+    // Vérifier l'unicité (au cas où)
+    const existingQuote = await this.quoteModel.findOne({
+      quote_number: generatedQuoteNumber,
+    }).exec();
+
+    if (existingQuote) {
+      throw new ConflictException(`Le numéro de devis ${generatedQuoteNumber} est déjà utilisé`);
+    }
+
+    // Créer le devis avec le numéro généré automatiquement
+    // Ignorer tout quote_number fourni dans le DTO
+    const quote = new this.quoteModel({
+      ...createQuoteDto,
+      quote_number: generatedQuoteNumber, // Toujours utiliser le numéro généré
+    });
+    
     this.calculateTotals(quote);
     return quote.save();
   }
@@ -45,14 +65,10 @@ export class QuotesService {
   }
 
   async update(id: string, updateQuoteDto: UpdateQuoteDto): Promise<QuoteDocument> {
+    // NE PAS permettre la modification du numéro de devis
+    // Supprimer quote_number du DTO de mise à jour s'il est présent
     if (updateQuoteDto.quote_number) {
-      const existingQuote = await this.quoteModel.findOne({
-        quote_number: updateQuoteDto.quote_number,
-        _id: { $ne: id },
-      }).exec();
-      if (existingQuote) {
-        throw new ConflictException('Un devis avec ce numéro existe déjà');
-      }
+      delete updateQuoteDto.quote_number;
     }
 
     const quote = await this.quoteModel
@@ -110,26 +126,24 @@ export class QuotesService {
   }
 
   async convertToOrder(id: string): Promise<{ quote: QuoteDocument; orderId: string }> {
-    const quote = await this.findOne(id);
-    
-    if (quote.status !== 'accepted') {
-      throw new BadRequestException('Seuls les devis acceptés peuvent être convertis en commande');
-    }
+  const quote = await this.findOne(id);
 
-    if (quote.order_id) {
-      throw new BadRequestException('Ce devis a déjà été converti en commande');
-    }
-
-    // Ici, on retournera l'ID de la commande créée
-    // Pour l'instant, on simule avec un ID fictif
-    const orderId = 'order_' + Date.now();
-    
-    // Mettre à jour le devis avec l'ID de la commande
-    quote.order_id = orderId as any;
-    await quote.save();
-
-    return { quote, orderId };
+  if (quote.status !== 'accepted') {
+    throw new BadRequestException('Seuls les devis acceptés peuvent être convertis en commande');
   }
+
+  if (quote.order_id) {
+    throw new BadRequestException('Ce devis a déjà été converti en commande');
+  }
+
+  // Bug 10 corrigé : lever une erreur explicite plutôt que persister un ID fictif.
+  // La création de la commande doit être initiée depuis le frontend via POST /orders,
+  // puis l'order_id doit être renseigné via PATCH /quotes/:id
+  throw new BadRequestException(
+    'La conversion doit être effectuée depuis le module commandes : ' +
+    'créez la commande via POST /api/orders puis mettez à jour le devis avec l\'ID obtenu.',
+  );
+}
 
   async getExpiredQuotes(): Promise<QuoteDocument[]> {
     const now = new Date();

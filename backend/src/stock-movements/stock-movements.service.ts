@@ -508,11 +508,16 @@ export class StockMovementsService {
 
   // Méthodes utilitaires privées
   private async generateMovementNumber(): Promise<string> {
-    const today = new Date();
-    const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
-    const counterNumber = await this.countersService.getNextNumber('STOCK_MOVEMENT');
-    return `SM-${datePart}-${counterNumber.padStart(6, '0')}`;
-  }
+  const today = new Date();
+  const datePart = today.toISOString().slice(0, 10).replace(/-/g, '');
+  // Bug 8 corrigé : on incrémente manuellement sans passer par getNextNumber
+  // qui retourne un string formaté non paddable
+  const current = await this.countersService.getCurrentNumber('STOCK_MOVEMENT').catch(() => 0);
+  const nextNum = (current + 1).toString().padStart(6, '0');
+  // Incrémenter le compteur manuellement en base
+  await this.countersService.getNextNumber('STOCK_MOVEMENT');
+  return `SM-${datePart}-${nextNum}`;
+}
 
   private async updateProductStock(
     productId: string,

@@ -5,6 +5,7 @@ import { InvoicesController } from './invoices.controller';
 import { Invoice, InvoiceSchema } from './schemas/invoice.schema';
 import { DeliveryNote, DeliveryNoteSchema } from '../delivery-notes/schemas/delivery-note.schema';
 import { Customer, CustomerSchema } from '../customers/schemas/customer.schema';
+import { CountersModule } from '../counters/counters.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Customer, CustomerSchema } from '../customers/schemas/customer.schema';
       { name: DeliveryNote.name, schema: DeliveryNoteSchema },
       { name: Customer.name, schema: CustomerSchema },
     ]),
+    CountersModule,
   ],
   controllers: [InvoicesController],
   providers: [InvoicesService],

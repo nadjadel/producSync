@@ -134,6 +134,68 @@ export class CountersService {
   }
 
   /**
+   * Génère un code client alternatif en modifiant la dernière lettre
+   * @param baseCode Code de base (3 lettres)
+   * @param attempt Numéro de tentative (0 = lettre suivante, 1 = 2ème lettre suivante, etc.)
+   */
+  private generateAlternativeCustomerCode(baseCode: string, attempt: number = 0): string {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+    // Convertir le code en tableau de caractères
+    const chars = baseCode.split('');
+    
+    // Modifier la dernière lettre (position 2)
+    const lastCharIndex = letters.indexOf(chars[2]);
+    const newIndex = (lastCharIndex + 1 + attempt) % 26;
+    chars[2] = letters[newIndex];
+    
+    // Si on a fait le tour de l'alphabet (Z → A), modifier la lettre du milieu
+    if (newIndex < lastCharIndex) {
+      const middleCharIndex = letters.indexOf(chars[1]);
+      chars[1] = letters[(middleCharIndex + 1) % 26];
+      
+      // Si la lettre du milieu a fait le tour, modifier la première lettre
+      if (middleCharIndex === 25) {
+        const firstCharIndex = letters.indexOf(chars[0]);
+        chars[0] = letters[(firstCharIndex + 1) % 26];
+      }
+    }
+    
+    return chars.join('');
+  }
+
+  /**
+   * Génère un code client unique avec retry en cas de conflit
+   * @param checkUnique Fonction pour vérifier l'unicité du code
+   * @param maxAttempts Nombre maximum de tentatives
+   */
+  async getUniqueCustomerCode(checkUnique: (code: string) => Promise<boolean>, maxAttempts: number = 10): Promise<string> {
+    // Générer le code initial
+    const initialCode = await this.getNextCustomerCode();
+    
+    // Vérifier si le code initial est unique
+    const isInitialUnique = await checkUnique(initialCode);
+    if (isInitialUnique) {
+      return initialCode;
+    }
+    
+    // Si le code existe déjà, essayer des alternatives
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const alternativeCode = this.generateAlternativeCustomerCode(initialCode, attempt);
+      const isAlternativeUnique = await checkUnique(alternativeCode);
+      
+      if (isAlternativeUnique) {
+        // Note: On n'incrémente pas le compteur ici car on utilise une alternative
+        // au code initial qui a déjà été incrémenté
+        return alternativeCode;
+      }
+    }
+    
+    // Si on n'a pas trouvé de code unique après maxAttempts
+    throw new ConflictException(`Impossible de générer un code client unique après ${maxAttempts} tentatives`);
+  }
+
+  /**
    * Génère un code produit : 3 lettres customer + 8 chiffres
    */
   private generateProductCode(number: number): string {

@@ -8,15 +8,24 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ManufacturingOrder, ManufacturingOrderDocument } from './schemas/manufacturing-order.schema';
 import { CreateManufacturingOrderDto, UpdateManufacturingOrderDto } from './dto';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class ManufacturingOrdersService {
   constructor(
     @InjectModel(ManufacturingOrder.name) private manufacturingOrderModel: Model<ManufacturingOrderDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
+  // Bug 7 corrigé : génération automatique du order_number via CountersService
   async create(createManufacturingOrderDto: CreateManufacturingOrderDto): Promise<ManufacturingOrderDocument> {
-    const manufacturingOrder = new this.manufacturingOrderModel(createManufacturingOrderDto);
+    const order_number = createManufacturingOrderDto.order_number
+      ?? await this.countersService.getNextNumber('OF');
+
+    const manufacturingOrder = new this.manufacturingOrderModel({
+      ...createManufacturingOrderDto,
+      order_number,
+    });
     return manufacturingOrder.save();
   }
 
@@ -106,14 +115,13 @@ export class ManufacturingOrdersService {
 
   async updateProgress(id: string, quantityProduced: number): Promise<ManufacturingOrderDocument> {
     const manufacturingOrder = await this.findOne(id);
-    
+
     if (quantityProduced < 0 || quantityProduced > manufacturingOrder.quantity_planned) {
       throw new BadRequestException(`Quantité produite invalide. Doit être entre 0 et ${manufacturingOrder.quantity_planned}`);
     }
 
     manufacturingOrder.quantity_produced = quantityProduced;
-    
-    // Mettre à jour le statut si la quantité produite atteint la quantité planifiée
+
     if (quantityProduced >= manufacturingOrder.quantity_planned) {
       manufacturingOrder.status = 'completed';
       manufacturingOrder.ready_for_delivery = true;
@@ -137,7 +145,7 @@ export class ManufacturingOrdersService {
 
   async markAsDelivered(id: string, deliveryNoteId?: string): Promise<ManufacturingOrderDocument> {
     const manufacturingOrder = await this.findOne(id);
-    
+
     if (!manufacturingOrder.ready_for_delivery) {
       throw new BadRequestException('Cet OF n\'est pas prêt pour la livraison');
     }

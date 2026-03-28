@@ -7,20 +7,30 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Customer, CustomerDocument } from './schemas/customer.schema';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class CustomersService {
   constructor(
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<CustomerDocument> {
-    const existingCustomer = await this.customerModel.findOne({ code: createCustomerDto.code }).exec();
-    if (existingCustomer) {
-      throw new ConflictException('Un client avec ce code existe déjà');
-    }
+    // Fonction pour vérifier l'unicité d'un code
+    const checkCodeUniqueness = async (code: string): Promise<boolean> => {
+      const existingCustomer = await this.customerModel.findOne({ code }).exec();
+      return !existingCustomer; // true si unique, false si existe déjà
+    };
 
-    const customer = new this.customerModel(createCustomerDto);
+    // Générer un code client unique avec retry en cas de conflit
+    const uniqueCode = await this.countersService.getUniqueCustomerCode(checkCodeUniqueness);
+// Créer le client avec le code unique généré
+    // Ignorer tout code fourni dans le DTO
+    const customer = new this.customerModel({
+      ...createCustomerDto,
+      code: uniqueCode, // Toujours utiliser le code généré
+    });
     return customer.save();
   }
 
@@ -46,14 +56,10 @@ export class CustomersService {
   }
 
   async update(id: string, updateCustomerDto: UpdateCustomerDto): Promise<CustomerDocument> {
+    // NE PAS permettre la modification du code client
+    // Supprimer code du DTO de mise à jour s'il est présent
     if (updateCustomerDto.code) {
-      const existingCustomer = await this.customerModel.findOne({
-        code: updateCustomerDto.code,
-        _id: { $ne: id },
-      }).exec();
-      if (existingCustomer) {
-        throw new ConflictException('Un client avec ce code existe déjà');
-      }
+      delete updateCustomerDto.code;
     }
 
     const customer = await this.customerModel

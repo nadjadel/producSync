@@ -608,46 +608,63 @@ export default function CustomerDetails() {
                             <TableHead>Titre</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Livraison prévue</TableHead>
+                            <TableHead>Articles</TableHead>
                             <TableHead>Montant</TableHead>
                             <TableHead>Statut</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {orders.map(order => (
-                            <TableRow key={order.id}>
-                              <TableCell className="font-mono font-bold">{order.code}</TableCell>
-                              <TableCell className="font-medium">{order.title}</TableCell>
-                              <TableCell>
-                                {order.created_date ? new Date(order.created_date).toLocaleDateString('fr-FR') : '-'}
-                              </TableCell>
-                              <TableCell>
-                                {order.expected_delivery_date ? new Date(order.expected_delivery_date).toLocaleDateString('fr-FR') : '-'}
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                {order.total_amount ? `${order.total_amount.toFixed(2)} €` : '-'}
-                              </TableCell>
-                              <TableCell>
-                                <Badge className={
-                                  order.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
-                                  order.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                                  order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                  'bg-slate-100 text-slate-700'
-                                }>
-                                  {order.status === 'completed' ? 'Terminée' : 
-                                   order.status === 'in_progress' ? 'En cours' : 
-                                   order.status === 'cancelled' ? 'Annulée' : 'Brouillon'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" asChild>
-                                  <Link to={`/orders/${order.id}`}>
-                                    <Eye className="w-4 h-4" />
-                                  </Link>
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                          {orders.map(order => {
+                            const itemCount = order.items?.length || 0;
+                            const totalItems = order.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 0;
+                            const itemsSummary = itemCount > 0 
+                              ? `${itemCount} produit${itemCount > 1 ? 's' : ''}, ${totalItems} unité${totalItems > 1 ? 's' : ''}`
+                              : 'Aucun article';
+                            
+                            return (
+                              <TableRow key={order.id}>
+                                <TableCell className="font-mono font-bold">{order.code}</TableCell>
+                                <TableCell className="font-medium">{order.title}</TableCell>
+                                <TableCell>
+                                  {order.created_date ? new Date(order.created_date).toLocaleDateString('fr-FR') : '-'}
+                                </TableCell>
+                                <TableCell>
+                                  {order.expected_delivery_date ? new Date(order.expected_delivery_date).toLocaleDateString('fr-FR') : '-'}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="text-sm">
+                                    <div className="font-medium">{itemsSummary}</div>
+                                    {order.total_ht && (
+                                      <div className="text-slate-500">Total: {order.total_ht.toFixed(2)} € HT</div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="font-medium">
+                                  {order.total_amount ? `${order.total_amount.toFixed(2)} €` : '-'}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge className={
+                                    order.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                                    order.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                                    order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                    'bg-slate-100 text-slate-700'
+                                  }>
+                                    {order.status === 'completed' ? 'Terminée' : 
+                                     order.status === 'in_progress' ? 'En cours' : 
+                                     order.status === 'cancelled' ? 'Annulée' : 'Brouillon'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  <Button variant="ghost" size="icon" asChild>
+                                    <Link to={`/orders/${order.id}`}>
+                                      <Eye className="w-4 h-4" />
+                                    </Link>
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     )}

@@ -10,6 +10,7 @@ import { Invoice, InvoiceDocument } from './schemas/invoice.schema';
 import { CreateInvoiceDto, UpdateInvoiceDto } from './dto';
 import { DeliveryNote, DeliveryNoteDocument } from '../delivery-notes/schemas/delivery-note.schema';
 import { Customer, CustomerDocument } from '../customers/schemas/customer.schema';
+import { CountersService } from '../counters/counters.service';
 
 @Injectable()
 export class InvoicesService {
@@ -17,6 +18,7 @@ export class InvoicesService {
     @InjectModel(Invoice.name) private invoiceModel: Model<InvoiceDocument>,
     @InjectModel(DeliveryNote.name) private deliveryNoteModel: Model<DeliveryNoteDocument>,
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
+    private readonly countersService: CountersService,
   ) {}
 
   private calculateTotals(invoice: InvoiceDocument): void {
@@ -31,7 +33,6 @@ export class InvoicesService {
   }
 
   async create(createInvoiceDto: CreateInvoiceDto): Promise<InvoiceDocument> {
-    // Vérifier l'unicité du numéro de facture
     const existingInvoice = await this.invoiceModel.findOne({
       invoice_number: createInvoiceDto.invoice_number,
     }).exec();
@@ -135,7 +136,7 @@ export class InvoicesService {
 
   async markAsPaid(id: string, paymentDate: string): Promise<InvoiceDocument> {
     const invoice = await this.findOne(id);
-    
+
     if (invoice.status === 'paid') {
       throw new BadRequestException('Cette facture est déjà payée');
     }
@@ -150,7 +151,6 @@ export class InvoicesService {
     customerId: string,
     invoiceDate: string,
   ): Promise<InvoiceDocument> {
-    // Vérifier que tous les BLs existent et appartiennent au même client
     const deliveryNotes = await this.deliveryNoteModel.find({
       _id: { $in: blIds },
     }).exec();
@@ -159,7 +159,6 @@ export class InvoicesService {
       throw new BadRequestException('Certains bons de livraison n\'existent pas');
     }
 
-    // Vérifier que tous les BLs ne sont pas déjà facturés
     const alreadyInvoicedNotes = deliveryNotes.filter(
       (note) => note.status === 'invoiced',
     );
@@ -170,7 +169,6 @@ export class InvoicesService {
       );
     }
 
-    // Vérifier que tous les BLs appartiennent au même client
     const noteCustomerId = deliveryNotes[0].customer_id;
     const sameCustomer = deliveryNotes.every(
       (note) => note.customer_id?.toString() === noteCustomerId?.toString(),
@@ -180,36 +178,34 @@ export class InvoicesService {
       throw new BadRequestException('Tous les BLs doivent appartenir au même client');
     }
 
-    // Récupérer les informations du client
     const customer = await this.customerModel.findById(customerId).exec();
     if (!customer) {
       throw new BadRequestException('Client non trouvé');
     }
 
-    // Créer les items de la facture à partir des BLs
     const items = deliveryNotes.flatMap((note) =>
       note.items.map((item) => ({
         description: `Produit: ${item.product_name} - BL ${note.delivery_number}`,
         quantity: item.quantity,
         unit_price: item.unit_price || 0,
         total_ht: item.total || 0,
-        vat_rate: 20, // Taux TVA par défaut, à adapter selon la logique métier
+        vat_rate: 20,
       })),
     );
 
-    // Calculer les totaux
     const total_ht = items.reduce((sum, item) => sum + item.total_ht, 0);
     const total_vat = items.reduce((sum, item) => sum + (item.total_ht * item.vat_rate / 100), 0);
     const total_ttc = total_ht + total_vat;
 
-    // Calculer la date d'échéance
     const invoiceDateObj = new Date(invoiceDate);
     const dueDate = new Date(invoiceDateObj);
-    dueDate.setDate(dueDate.getDate() + (30)); // Par défaut 30 jours
+    dueDate.setDate(dueDate.getDate() + 30);
 
-    // Créer la facture
+    // Bug 4 corrigé : utilisation de CountersService au lieu de Date.now()
+    const invoiceNumber = await this.countersService.getNextNumber('FA');
+
     const createDto: CreateInvoiceDto = {
-      invoice_number: `FA-${Date.now()}`, // À remplacer par CounterService.generateCode('FA')
+      invoice_number: invoiceNumber,
       invoice_date: invoiceDate,
       customer_id: customerId,
       customer_name: customer.company_name,
@@ -232,7 +228,6 @@ export class InvoicesService {
 
     const invoice = await this.create(createDto);
 
-    // Mettre à jour les BLs comme facturés
     await this.deliveryNoteModel.updateMany(
       { _id: { $in: blIds } },
       {
@@ -244,12 +239,18 @@ export class InvoicesService {
     return invoice;
   }
 
+  // Bug 9 corrigé : mise à jour du statut + inclusion des factures déjà overdue
   async getOverdueInvoices(): Promise<InvoiceDocument[]> {
     const today = new Date();
-    return this.invoiceModel.find({
-      status: { $in: ['sent'] },
-      due_date: { $lt: today },
-    }).exec();
+
+    // Mettre à jour les factures 'sent' dont la date d'échéance est dépassée
+    await this.invoiceModel.updateMany(
+      { status: 'sent', due_date: { $lt: today } },
+      { $set: { status: 'overdue' } },
+    ).exec();
+
+    // Retourner toutes les factures overdue
+    return this.invoiceModel.find({ status: 'overdue' }).sort({ due_date: 1 }).exec();
   }
 
   async getByDeliveryNote(deliveryNoteId: string): Promise<InvoiceDocument[]> {

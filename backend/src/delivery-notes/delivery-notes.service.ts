@@ -8,13 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DeliveryNote, DeliveryNoteDocument } from './schemas/delivery-note.schema';
 import { CreateDeliveryNoteDto, UpdateDeliveryNoteDto } from './dto';
-import { ManufacturingOrder } from '../manufacturing-orders/schemas/manufacturing-order.schema';
+import { ManufacturingOrder, ManufacturingOrderDocument } from '../manufacturing-orders/schemas/manufacturing-order.schema';
 
 @Injectable()
 export class DeliveryNotesService {
   constructor(
     @InjectModel(DeliveryNote.name) private deliveryNoteModel: Model<DeliveryNoteDocument>,
-    @InjectModel(ManufacturingOrder.name) private manufacturingOrderModel: Model<ManufacturingOrder>,
+    @InjectModel(ManufacturingOrder.name) private manufacturingOrderModel: Model<ManufacturingOrderDocument>,
   ) {}
 
   async create(createDeliveryNoteDto: CreateDeliveryNoteDto): Promise<DeliveryNoteDocument> {
@@ -118,7 +118,6 @@ export class DeliveryNotesService {
     deliveryDate: string,
     deliveryAddress?: string,
   ): Promise<DeliveryNoteDocument> {
-    // Vérifier que tous les OFs existent et appartiennent au même client
     const manufacturingOrders = await this.manufacturingOrderModel.find({
       _id: { $in: ofIds },
     }).exec();
@@ -127,7 +126,6 @@ export class DeliveryNotesService {
       throw new BadRequestException('Certains ordres de fabrication n\'existent pas');
     }
 
-    // Vérifier que tous les OFs sont prêts pour la livraison
     const notReadyOrders = manufacturingOrders.filter(
       (order) => !order.ready_for_delivery || order.delivered,
     );
@@ -138,27 +136,26 @@ export class DeliveryNotesService {
       );
     }
 
-    // Vérifier que tous les OFs appartiennent au même client
-    const orderCustomerId = manufacturingOrders[0].customer_order_id;
+    // Bug 5 corrigé : vérifier que tous les OFs partagent le même customer_order_id
+    // et que ce customer_order_id correspond au customerId fourni
+    const firstOrderCustomerId = manufacturingOrders[0].customer_order_id?.toString();
     const sameCustomer = manufacturingOrders.every(
-      (order) => order.customer_order_id?.toString() === orderCustomerId?.toString(),
+      (order) => order.customer_order_id?.toString() === firstOrderCustomerId,
     );
 
     if (!sameCustomer) {
-      throw new BadRequestException('Tous les OFs doivent appartenir au même client');
+      throw new BadRequestException('Tous les OFs doivent appartenir à la même commande client');
     }
 
-    // Créer les items du bon de livraison
     const items = manufacturingOrders.map((order) => ({
       manufacturing_order_id: order._id.toString(),
       order_number: order.order_number,
       product_id: order.product_id.toString(),
       product_name: order.product_name,
       quantity: order.quantity_planned,
-      unit_price: 0, // À définir selon la logique métier
+      unit_price: 0,
     }));
 
-    // Créer le bon de livraison
     const createDto: CreateDeliveryNoteDto = {
       customer_id: customerId,
       customer_name: manufacturingOrders[0].customer_order_number || 'Client',
@@ -170,7 +167,6 @@ export class DeliveryNotesService {
 
     const deliveryNote = await this.create(createDto);
 
-    // Mettre à jour les OFs comme livrés
     await this.manufacturingOrderModel.updateMany(
       { _id: { $in: ofIds } },
       {
@@ -188,7 +184,7 @@ export class DeliveryNotesService {
 
   async markAsInvoiced(id: string, invoiceId: string): Promise<DeliveryNoteDocument> {
     const deliveryNote = await this.findOne(id);
-    
+
     if (deliveryNote.status === 'invoiced') {
       throw new BadRequestException('Ce bon de livraison est déjà facturé');
     }

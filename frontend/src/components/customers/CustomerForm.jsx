@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { generateCustomerCode } from '@/components/utils/counterUtils';
 
 const PAYMENT_TERMS = [
   { value: '30_days', label: '30 jours' },
@@ -22,7 +21,7 @@ const STATUSES = [
 ];
 
 const emptyForm = {
-  code: '', company_name: '', siret: '', vat_number: '',
+  company_name: '', siret: '', vat_number: '',
   contact_name: '', email: '', phone: '', address: '',
   postal_code: '', city: '', country: 'France',
   payment_terms: '30_days', status: 'active', notes: '',
@@ -40,12 +39,7 @@ export default function CustomerForm({ open, onOpenChange, customer, onSave, exi
   }, [customer, open]);
 
   const handleChange = (field, value) => {
-    if (field === 'company_name' && !customer && value.length >= 3) {
-      const code = generateCustomerCode(value, existingCustomers);
-      setFormData(prev => ({ ...prev, [field]: value, code }));
-    } else {
-      setFormData(prev => ({ ...prev, [field]: value }));
-    }
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -66,11 +60,6 @@ export default function CustomerForm({ open, onOpenChange, customer, onSave, exi
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Code client *</Label>
-              <Input value={formData.code} onChange={(e) => handleChange('code', e.target.value.toUpperCase())}
-                maxLength={3} disabled={!!customer} required placeholder="3 lettres" />
-            </div>
             <div className="space-y-2">
               <Label>Raison sociale *</Label>
               <Input value={formData.company_name} onChange={(e) => handleChange('company_name', e.target.value)} required />

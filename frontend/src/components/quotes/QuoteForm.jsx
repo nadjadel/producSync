@@ -22,30 +22,22 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
       setFormData({ ...quote, items: quote.items || [] });
     } else if (open && !quote) {
       // Mode création : initialiser avec données pré-remplies ou valeurs par défaut
-      (async () => {
-        const quoteNumber = await counterService.getNextNumber('DE');
-        const validUntil = new Date();
-        validUntil.setDate(validUntil.getDate() + 30);
-        
-        const initialData = prefilledData || {
-          quote_number: quoteNumber,
-          customer_id: '',
-          customer_name: '',
-          status: 'draft',
-          quote_date: new Date().toISOString().slice(0, 10),
-          valid_until: validUntil.toISOString().slice(0, 10),
-          items: [],
-          notes: '',
-          vat_rate: 20,
-        };
+      const validUntil = new Date();
+      validUntil.setDate(validUntil.getDate() + 30);
+      
+      const initialData = prefilledData || {
+        quote_number: '', // Le backend générera automatiquement le numéro
+        customer_id: '',
+        customer_name: '',
+        status: 'draft',
+        quote_date: new Date().toISOString().slice(0, 10),
+        valid_until: validUntil.toISOString().slice(0, 10),
+        items: [],
+        notes: '',
+        vat_rate: 20,
+      };
 
-        // Si prefilledData existe mais n'a pas de quote_number, utiliser celui généré
-        if (prefilledData && !prefilledData.quote_number) {
-          initialData.quote_number = quoteNumber;
-        }
-
-        setFormData(initialData);
-      })();
+      setFormData(initialData);
     }
   }, [quote, open, prefilledData]);
 
@@ -97,6 +89,9 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
     delete dataToSend.total_vat;
     delete dataToSend.total_ttc;
     
+    // Ne pas envoyer quote_number - le backend le générera automatiquement
+    delete dataToSend.quote_number;
+    
     // Nettoyer les items : enlever la propriété 'total' de chaque item
     if (dataToSend.items && Array.isArray(dataToSend.items)) {
       dataToSend.items = dataToSend.items.map(item => {
@@ -121,15 +116,15 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>N° Devis *</Label>
+              <Label>N° Devis</Label>
               <Input 
                 value={formData.quote_number} 
                 onChange={(e) => setFormData(p => ({ ...p, quote_number: e.target.value }))} 
-                required 
                 disabled={!quote} // Lecture seule en création, modifiable en édition
                 className="bg-slate-50"
+                placeholder="Généré automatiquement"
               />
-              <p className="text-xs text-slate-500">Généré automatiquement</p>
+              <p className="text-xs text-slate-500">Le numéro sera généré automatiquement par le système</p>
             </div>
             <div className="space-y-2">
               <Label>Date *</Label>

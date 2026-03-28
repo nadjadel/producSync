@@ -7,11 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
-import { counterService } from '@/api/counterService';
 
 export default function OrderFormNew({ open, onOpenChange, order, onSave, customers, products }) {
   const [formData, setFormData] = useState({
-    order_number: '',
     customer_id: '',
     customer_name: '',
     status: 'draft',
@@ -26,7 +24,6 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
   useEffect(() => {
     if (order) {
       setFormData({
-        order_number: order.order_number || '',
         customer_id: order.customer_id || '',
         customer_name: order.customer_name || '',
         status: order.status || 'draft',
@@ -38,21 +35,17 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
         vat_rate: order.vat_rate || 20
       });
     } else if (open && !order) {
-      (async () => {
-        const newOrderNumber = await counterService.getNextNumber('CO');
-        setFormData({
-          order_number: newOrderNumber,
-          customer_id: '',
-          customer_name: '',
-          status: 'draft',
-          order_date: new Date().toISOString().slice(0, 10),
-          delivery_date_requested: '',
-          items: [],
-          delivery_address: '',
-          notes: '',
-          vat_rate: 20
-        });
-      })();
+      setFormData({
+        customer_id: '',
+        customer_name: '',
+        status: 'draft',
+        order_date: new Date().toISOString().slice(0, 10),
+        delivery_date_requested: '',
+        items: [],
+        delivery_address: '',
+        notes: '',
+        vat_rate: 20
+      });
     }
   }, [order, open]);
 

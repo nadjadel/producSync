@@ -9,12 +9,14 @@ import { Model } from 'mongoose';
 import { Order, OrderDocument } from './schemas/order.schema';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { CountersService } from '../counters/counters.service';
+import { ManufacturingOrdersService } from '../manufacturing-orders/manufacturing-orders.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private readonly countersService: CountersService,
+    private readonly manufacturingOrdersService: ManufacturingOrdersService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<OrderDocument> {
@@ -39,7 +41,33 @@ export class OrdersService {
     // Calculer les totaux
     this.calculateTotals(order);
     
-    return order.save();
+    // Sauvegarder la commande
+    const savedOrder = await order.save();
+    
+    // Créer des ordres de fabrication (OF) pour les items de la commande
+    // Pour l'instant, on crée un OF pour chaque item
+    // Dans un système réel, on vérifierait si le produit nécessite fabrication
+    if (savedOrder.items && savedOrder.items.length > 0) {
+      for (const item of savedOrder.items) {
+        try {
+          await this.manufacturingOrdersService.create({
+            customer_order_id: savedOrder._id.toString(),
+            customer_order_number: savedOrder.order_number,
+            product_id: item.product_id.toString(),
+            product_name: item.product_name || `Produit ${item.product_id}`,
+            quantity_planned: item.quantity,
+            status: 'planned',
+            priority: 'medium',
+            notes: `OF généré automatiquement depuis la commande ${savedOrder.order_number}`,
+          });
+        } catch (error) {
+          // Log l'erreur mais ne bloque pas la création de la commande
+          console.error(`Erreur lors de la création de l'OF pour le produit ${item.product_id}:`, error.message);
+        }
+      }
+    }
+    
+    return savedOrder;
   }
 
   async findAll(status?: string, customerId?: string): Promise<OrderDocument[]> {

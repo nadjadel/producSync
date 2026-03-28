@@ -22,7 +22,7 @@ const UNITS = [
 ];
 
 const emptyForm = {
-  reference: '', customer_id: '', customer_code: '', name: '', description: '',
+  customer_id: '', customer_code: '', name: '', description: '',
   category: 'produit_fini', unit: 'piece', stock_quantity: 0, stock_minimum: 0,
   cost_price: 0, sell_price: 0, bom: [],
 };
@@ -43,11 +43,10 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
   const handleCustomerChange = async (customerId) => {
     // Try to find customer by id or _id
     const customer = customers.find(c => c.id === customerId || c._id === customerId);
-    if (customer && !product) {
-      const reference = await counterService.getNextProductCode(customer.code);
-      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer.code, reference }));
+    if (customer) {
+      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer.code }));
     } else {
-      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: customer?.code || '' }));
+      setFormData(prev => ({ ...prev, customer_id: customerId, customer_code: '' }));
     }
   };
 
@@ -98,16 +97,9 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Référence *</Label>
-              <Input value={formData.reference} onChange={(e) => handleChange('reference', e.target.value)}
-                disabled={!!product} required placeholder="ABC-001" />
-            </div>
-            <div className="space-y-2">
-              <Label>Nom *</Label>
-              <Input value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
-            </div>
+          <div className="space-y-2">
+            <Label>Nom *</Label>
+            <Input value={formData.name} onChange={(e) => handleChange('name', e.target.value)} required />
           </div>
 
           <div className="space-y-2">
@@ -170,7 +162,7 @@ export default function ProductForm({ open, onOpenChange, product, onSave, allPr
                         <SelectTrigger className="flex-1"><SelectValue placeholder="Sélectionner un composant" /></SelectTrigger>
                         <SelectContent>
                           {allProducts.filter(p => (p.id !== product?.id && p.id !== product?._id) && (p._id !== product?.id && p._id !== product?._id)).map(p => (
-                            <SelectItem key={p.id || p._id} value={p.id || p._id}>{p.reference} — {p.name}</SelectItem>
+                            <SelectItem key={p.id || p._id} value={p.id || p._id}>{p.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>

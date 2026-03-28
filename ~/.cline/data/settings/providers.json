@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "lastUsedProvider": "deepseek",
+  "providers": {
+    "deepseek": {
+      "settings": {
+        "provider": "deepseek",
+        "model": "deepseek-chat"
+      },
+      "updatedAt": "2026-03-27T05:39:09.240Z",
+      "tokenSource": "manual"
+    }
+  }
+}

@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   UseGuards,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { CreditNotesService } from './credit-notes.service';
 import { CreateCreditNoteDto, UpdateCreditNoteDto } from './dto';
@@ -99,12 +98,13 @@ export class CreditNotesController {
     return this.creditNotesService.updateStatus(id, status);
   }
 
+  // Bug 6 corrigé : suppression de ParseIntPipe — amount peut être un float
   @Patch(':id/apply')
   @Roles('Administrator')
   applyToInvoice(
     @Param('id') id: string,
     @Body('invoiceId') invoiceId: string,
-    @Body('amount', ParseIntPipe) amount: number,
+    @Body('amount') amount: number,
   ) {
     return this.creditNotesService.applyToInvoice(id, invoiceId, amount);
   }
