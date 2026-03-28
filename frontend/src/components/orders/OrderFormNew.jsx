@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2 } from "lucide-react";
 
-export default function OrderFormNew({ open, onOpenChange, order, onSave, customers, products }) {
+export default function OrderFormNew({ open, onOpenChange, order, onSave, customers, products, prefilledData = null }) {
   const [formData, setFormData] = useState({
     customer_id: '',
     customer_name: '',
@@ -35,7 +35,7 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
         vat_rate: order.vat_rate || 20
       });
     } else if (open && !order) {
-      setFormData({
+      const defaults = {
         customer_id: '',
         customer_name: '',
         status: 'draft',
@@ -45,9 +45,10 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
         delivery_address: '',
         notes: '',
         vat_rate: 20
-      });
+      };
+      setFormData({ ...defaults, ...(prefilledData || {}) });
     }
-  }, [order, open]);
+  }, [order, open, prefilledData]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));

@@ -27,16 +27,16 @@ const emptyForm = {
   cost_price: 0, sell_price: 0, bom: [],
 };
 
-export default function ProductForm({ open, onOpenChange, product, onSave, allProducts = [], customers = [] }) {
+export default function ProductForm({ open, onOpenChange, product, onSave, allProducts = [], customers = [], prefilledData = null }) {
   const [formData, setFormData] = useState(emptyForm);
 
   useEffect(() => {
     if (product) {
       setFormData({ ...emptyForm, ...product, bom: product.bom || [] });
     } else {
-      setFormData(emptyForm);
+      setFormData({ ...emptyForm, ...(prefilledData ? { customer_id: prefilledData.customer_id || '', customer_code: prefilledData.customer_code || '' } : {}) });
     }
-  }, [product, open]);
+  }, [product, open, prefilledData]);
 
   const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 

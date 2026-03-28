@@ -21,12 +21,12 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
       // Mode édition : utiliser les données du devis existant
       setFormData({ ...quote, items: quote.items || [] });
     } else if (open && !quote) {
-      // Mode création : initialiser avec données pré-remplies ou valeurs par défaut
+      // Mode création : fusionner les valeurs par défaut avec prefilledData
       const validUntil = new Date();
       validUntil.setDate(validUntil.getDate() + 30);
-      
-      const initialData = prefilledData || {
-        quote_number: '', // Le backend générera automatiquement le numéro
+
+      const defaults = {
+        quote_number: '',
         customer_id: '',
         customer_name: '',
         status: 'draft',
@@ -37,7 +37,7 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
         vat_rate: 20,
       };
 
-      setFormData(initialData);
+      setFormData({ ...defaults, ...(prefilledData || {}) });
     }
   }, [quote, open, prefilledData]);
 
