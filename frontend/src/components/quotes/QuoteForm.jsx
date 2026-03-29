@@ -42,10 +42,21 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
   }, [quote, open, prefilledData]);
 
   const handleCustomerChange = (customerId) => {
-    // Try to find customer by id or _id
     const customer = customers.find(c => c.id === customerId || c._id === customerId);
-    setFormData(prev => ({ ...prev, customer_id: customerId, customer_name: customer?.company_name || '' }));
+    setFormData(prev => ({
+      ...prev,
+      customer_id: customerId,
+      customer_name: customer?.company_name || '',
+      customer_code: customer?.code || '',
+      items: [], // réinitialiser les lignes quand le client change
+    }));
   };
+
+  // Produits filtrés par client sélectionné
+  const selectedCustomer = customers.find(c => (c.id || c._id) === formData.customer_id);
+  const customerProducts = selectedCustomer
+    ? products.filter(p => p.customer_code === selectedCustomer.code)
+    : [];
 
   const addItem = () => setFormData(prev => ({
     ...prev, items: [...prev.items, { product_id: '', product_name: '', product_reference: '', quantity: 1, unit_price: 0, total: 0 }],
@@ -186,14 +197,22 @@ const QuoteForm = ({ open, onOpenChange, quote, onSave, customers = [], products
                         <TableCell>
                           <Select value={item.product_id} onValueChange={(v) => updateItem(index, 'product_id', v)}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionner" />
+                              <SelectValue placeholder={selectedCustomer ? 'Sélectionner' : 'Choisir un client d\'abord'} />
                             </SelectTrigger>
                             <SelectContent>
-                              {products.map(p => (
-                                <SelectItem key={p.id || p._id} value={p.id || p._id}>
-                                  {p.reference} — {p.name}
-                                </SelectItem>
-                              ))}
+                              {customerProducts.length === 0 ? (
+                                <div className="px-3 py-2 text-sm text-slate-400 italic">
+                                  {selectedCustomer
+                                    ? 'Aucun produit pour ce client'
+                                    : 'Sélectionnez d\'abord un client'}
+                                </div>
+                              ) : (
+                                customerProducts.map(p => (
+                                  <SelectItem key={p.id || p._id} value={p.id || p._id}>
+                                    {p.reference} — {p.name}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
