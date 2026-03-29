@@ -55,17 +55,24 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
   };
 
   const handleCustomerChange = (customerId) => {
-    // Try to find customer by id or _id
     const customer = customers.find(c => c.id === customerId || c._id === customerId);
     if (customer) {
       setFormData(prev => ({
         ...prev,
         customer_id: customerId,
         customer_name: customer.company_name,
-        delivery_address: `${customer.address || ''}\n${customer.postal_code || ''} ${customer.city || ''}`.trim()
+        customer_code: customer.code || '',
+        delivery_address: `${customer.address || ''}\n${customer.postal_code || ''} ${customer.city || ''}`.trim(),
+        items: [], // réinitialiser les lignes quand le client change
       }));
     }
   };
+
+  // Produits filtrés par client sélectionné
+  const selectedCustomer = customers.find(c => (c.id || c._id) === formData.customer_id);
+  const customerProducts = selectedCustomer
+    ? products.filter(p => p.customer_code === selectedCustomer.code)
+    : [];
 
   const addItem = () => {
     setFormData(prev => ({
@@ -218,11 +225,19 @@ export default function OrderFormNew({ open, onOpenChange, order, onSave, custom
                               <SelectValue placeholder="Sélectionner" />
                             </SelectTrigger>
                             <SelectContent>
-                              {products.filter(p => p.category === 'produit_fini').map(p => (
-                                <SelectItem key={p.id || p._id} value={p.id || p._id}>
-                                  {p.reference} - {p.name}
-                                </SelectItem>
-                              ))}
+                              {customerProducts.length === 0 ? (
+                                <div className="px-3 py-2 text-sm text-slate-400 italic">
+                                  {selectedCustomer
+                                    ? 'Aucun produit pour ce client'
+                                    : 'Sélectionnez d\'abord un client'}
+                                </div>
+                              ) : (
+                                customerProducts.map(p => (
+                                  <SelectItem key={p.id || p._id} value={p.id || p._id}>
+                                    {p.reference} — {p.name}
+                                  </SelectItem>
+                                ))
+                              )}
                             </SelectContent>
                           </Select>
                         </TableCell>
