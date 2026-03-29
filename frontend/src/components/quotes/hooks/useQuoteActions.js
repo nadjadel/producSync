@@ -55,15 +55,18 @@ export const useQuoteActions = () => {
         items: cleanItems,
       });
 
-      await base44.entities.Quote.update(quote.id, {
+      const quoteId = quote.id || quote._id;
+      const orderId = order.id || order._id;
+
+      await base44.entities.Quote.update(quoteId, {
         status: 'accepted',
-        order_id: order.id
+        order_id: orderId
       });
 
       // Créer des ordres de fabrication pour chaque ligne (numéros OF générés par le backend)
       const ofPromises = (quote.items || []).map(item =>
         base44.entities.ManufacturingOrder.create({
-          customer_order_id: order.id,
+          customer_order_id: orderId,
           customer_order_number: order.order_number,
           product_id: item.product_id,
           product_name: item.product_name,
