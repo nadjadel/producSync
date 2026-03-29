@@ -90,7 +90,11 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
                             className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer"
                             onClick={() => handleToggleOF(of)}>
                             <div className="flex items-center gap-3">
-                              <Checkbox checked={isSelected} onCheckedChange={() => handleToggleOF(of)} />
+                              <Checkbox
+                                checked={isSelected}
+                                onClick={(e) => e.stopPropagation()}
+                                onCheckedChange={() => handleToggleOF(of)}
+                              />
                               <div>
                                 <p className="font-medium text-slate-900">{of.order_number}</p>
                                 <p className="text-sm text-slate-500">{of.product_name}</p>
