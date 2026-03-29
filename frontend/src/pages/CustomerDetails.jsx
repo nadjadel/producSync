@@ -66,25 +66,25 @@ export default function CustomerDetails() {
   const { data: quotes = [], isLoading: isLoadingQuotes } = useQuery({
     queryKey: ['quotes', id],
     queryFn: () => base44.entities.Quote.filter({ customer_id: id }),
-    enabled: !!id && activeTab === 'quotes',
+    enabled: !!id,
   });
 
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ['orders', id],
     queryFn: () => base44.entities.Order.filter({ customer_id: id }),
-    enabled: !!id && activeTab === 'orders',
+    enabled: !!id,
   });
 
   const { data: invoices = [], isLoading: isLoadingInvoices } = useQuery({
     queryKey: ['invoices', id],
     queryFn: () => base44.entities.Invoice.filter({ customer_id: id }),
-    enabled: !!id && activeTab === 'invoices',
+    enabled: !!id,
   });
 
   const { data: deliveryNotes = [], isLoading: isLoadingDeliveryNotes } = useQuery({
     queryKey: ['deliveryNotes', id],
     queryFn: () => base44.entities.DeliveryNote.filter({ customer_id: id }),
-    enabled: !!id && activeTab === 'deliveryNotes',
+    enabled: !!id,
   });
 
   const { data: products = [], isLoading: isLoadingProducts } = useQuery({
@@ -373,13 +373,13 @@ export default function CustomerDetails() {
                     <div className="space-y-4">
                       {/* Recent quotes */}
                       {quotes.slice(0, 3).map(quote => (
-                        <div key={quote.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
+                        <div key={quote.id || quote._id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                           <div className="flex items-center gap-3">
                             <FileText className="w-5 h-5 text-blue-500" />
                             <div>
-                              <p className="font-medium">{quote.title || `Devis ${quote.code}`}</p>
+                              <p className="font-medium">{quote.quote_number || '-'}</p>
                               <p className="text-sm text-slate-500">
-                                {quote.created_date ? new Date(quote.created_date).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                                {quote.quote_date ? new Date(quote.quote_date).toLocaleDateString('fr-FR') : 'Date inconnue'}
                               </p>
                             </div>
                           </div>
@@ -395,13 +395,13 @@ export default function CustomerDetails() {
 
                       {/* Recent orders */}
                       {orders.slice(0, 3).map(order => (
-                        <div key={order.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
+                        <div key={order.id || order._id} className="flex items-center justify-between p-3 border border-slate-200 rounded-lg">
                           <div className="flex items-center gap-3">
                             <ShoppingCart className="w-5 h-5 text-emerald-500" />
                             <div>
-                              <p className="font-medium">{order.title || `Commande ${order.code}`}</p>
+                              <p className="font-medium">{order.order_number || '-'}</p>
                               <p className="text-sm text-slate-500">
-                                {order.created_date ? new Date(order.created_date).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                                {order.order_date ? new Date(order.order_date).toLocaleDateString('fr-FR') : 'Date inconnue'}
                               </p>
                             </div>
                           </div>
@@ -509,28 +509,26 @@ export default function CustomerDetails() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Code</TableHead>
-                            <TableHead>Titre</TableHead>
+                            <TableHead>N° Devis</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Validité</TableHead>
-                            <TableHead>Montant</TableHead>
+                            <TableHead>Montant TTC</TableHead>
                             <TableHead>Statut</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {quotes.map(quote => (
-                            <TableRow key={quote.id}>
-                              <TableCell className="font-mono font-bold">{quote.code}</TableCell>
-                              <TableCell className="font-medium">{quote.title}</TableCell>
+                            <TableRow key={quote.id || quote._id}>
+                              <TableCell className="font-mono font-bold">{quote.quote_number || '-'}</TableCell>
                               <TableCell>
-                                {quote.created_date ? new Date(quote.created_date).toLocaleDateString('fr-FR') : '-'}
+                                {quote.quote_date ? new Date(quote.quote_date).toLocaleDateString('fr-FR') : '-'}
                               </TableCell>
                               <TableCell>
                                 {quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('fr-FR') : '-'}
                               </TableCell>
                               <TableCell className="font-medium">
-                                {quote.total_amount ? `${quote.total_amount.toFixed(2)} €` : '-'}
+                                {quote.total_ttc != null ? `${Number(quote.total_ttc).toFixed(2)} €` : '-'}
                               </TableCell>
                               <TableCell>
                                 <Badge className={
@@ -588,44 +586,26 @@ export default function CustomerDetails() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Code</TableHead>
-                            <TableHead>Titre</TableHead>
+                            <TableHead>N° Commande</TableHead>
                             <TableHead>Date</TableHead>
-                            <TableHead>Livraison prévue</TableHead>
-                            <TableHead>Articles</TableHead>
-                            <TableHead>Montant</TableHead>
+                            <TableHead>Livraison souhaitée</TableHead>
+                            <TableHead>Montant TTC</TableHead>
                             <TableHead>Statut</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {orders.map(order => {
-                            const itemCount = order.items?.length || 0;
-                            const totalItems = order.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 0;
-                            const itemsSummary = itemCount > 0 
-                              ? `${itemCount} produit${itemCount > 1 ? 's' : ''}, ${totalItems} unité${totalItems > 1 ? 's' : ''}`
-                              : 'Aucun article';
-                            
-                            return (
-                              <TableRow key={order.id}>
-                                <TableCell className="font-mono font-bold">{order.code}</TableCell>
-                                <TableCell className="font-medium">{order.title}</TableCell>
+                          {orders.map(order => (
+                              <TableRow key={order.id || order._id}>
+                                <TableCell className="font-mono font-bold">{order.order_number || '-'}</TableCell>
                                 <TableCell>
-                                  {order.created_date ? new Date(order.created_date).toLocaleDateString('fr-FR') : '-'}
+                                  {order.order_date ? new Date(order.order_date).toLocaleDateString('fr-FR') : '-'}
                                 </TableCell>
                                 <TableCell>
                                   {order.delivery_date_requested ? new Date(order.delivery_date_requested).toLocaleDateString('fr-FR') : '-'}
                                 </TableCell>
-                                <TableCell>
-                                  <div className="text-sm">
-                                    <div className="font-medium">{itemsSummary}</div>
-                                    {order.total_ht && (
-                                      <div className="text-slate-500">Total: {order.total_ht.toFixed(2)} € HT</div>
-                                    )}
-                                  </div>
-                                </TableCell>
                                 <TableCell className="font-medium">
-                                  {order.total_amount ? `${order.total_amount.toFixed(2)} €` : '-'}
+                                  {order.total_ttc != null ? `${Number(order.total_ttc).toFixed(2)} €` : '-'}
                                 </TableCell>
                                 <TableCell>
                                   <Badge className={
@@ -647,8 +627,7 @@ export default function CustomerDetails() {
                                   </Button>
                                 </TableCell>
                               </TableRow>
-                            );
-                          })}
+                          ))}
                         </TableBody>
                       </Table>
                     )}
