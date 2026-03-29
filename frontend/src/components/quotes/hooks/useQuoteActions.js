@@ -45,15 +45,14 @@ export const useQuoteActions = () => {
   const convertToOrderMutation = useMutation({
     mutationFn: async (quote) => {
       // Le numéro CO est généré par le backend
+      const cleanItems = (quote.items || []).map(({ total, _id, ...item }) => item);
+
       const order = await base44.entities.Order.create({
         customer_id: quote.customer_id,
         customer_name: quote.customer_name,
         status: 'draft',
         order_date: new Date().toISOString().slice(0, 10),
-        items: quote.items,
-        total_ht: quote.total_ht,
-        total_vat: quote.total_vat,
-        total_ttc: quote.total_ttc,
+        items: cleanItems,
       });
 
       await base44.entities.Quote.update(quote.id, {
