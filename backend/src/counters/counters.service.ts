@@ -392,11 +392,12 @@ export class CountersService {
    * Génère d'abord (last_number=0 → 'AAA'), puis incrémente.
    */
   async getNextCustomerCode(): Promise<string> {
-    let counter = await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec();
-
-    if (!counter) {
-      counter = await this.initializeCounter('CUSTOMER');
+    if (!await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec()) {
+      await this.initializeCounter('CUSTOMER');
     }
+
+    const counter = await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec();
+    if (!counter) throw new Error("Impossible d'initialiser le compteur CUSTOMER");
 
     // Générer depuis la valeur courante (0 → 'AAA', 1 → 'AAB', …)
     const code = this.generateCustomerCode(counter.last_number);
