@@ -28,10 +28,14 @@ export default function DeliveryNotes() {
     queryKey: ['delivery-notes'],
     queryFn: () => base44.entities.DeliveryNote.list('-created_at'),
   });
-  const { data: manufacturingOrders = [] } = useQuery({
+  const { data: manufacturingOrdersRaw = [] } = useQuery({
     queryKey: ['manufacturing-orders'],
     queryFn: () => base44.entities.ManufacturingOrder.list(),
   });
+  // list() peut retourner { data: [...] } ou un tableau plat selon l'endpoint
+  const manufacturingOrders = Array.isArray(manufacturingOrdersRaw)
+    ? manufacturingOrdersRaw
+    : (manufacturingOrdersRaw?.data ?? []);
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
@@ -62,9 +66,11 @@ export default function DeliveryNotes() {
   const createMutation = useMutation({
     mutationFn: async ({ deliveryNote, selectedOFs }) => {
       const created = await base44.entities.DeliveryNote.create(deliveryNote);
-      await Promise.all(selectedOFs.map(of =>
-        base44.entities.ManufacturingOrder.update(of.id, { delivered: true, delivery_note_id: created.id })
-      ));
+      const createdId = created._id || created.id;
+      await Promise.all(selectedOFs.map(of => {
+        const ofId = of._id || of.id;
+        return base44.entities.ManufacturingOrder.update(ofId, { delivered: true, delivery_note_id: createdId });
+      }));
       return created;
     },
     onSuccess: () => {
