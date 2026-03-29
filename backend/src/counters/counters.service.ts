@@ -227,10 +227,10 @@ export class CountersService {
    */
   private formatPreviewNumber(counter: CounterDocument): string {
     const nextNumber = counter.last_number + counter.increment;
-    
-    // Cas spécial pour CUSTOMER : 3 lettres générées
+
+    // Cas spécial pour CUSTOMER : le prochain code = valeur courante (génère-avant-incrémente)
     if (counter.counter_type === 'CUSTOMER') {
-      return this.generateCustomerCode(nextNumber);
+      return this.generateCustomerCode(counter.last_number);
     }
     
     // Cas spécial pour PRODUCT : 3 lettres customer + 8 chiffres
@@ -275,7 +275,7 @@ export class CountersService {
       throw new NotFoundException(`Compteur ${counterType} non trouvé`);
     }
 
-    counter.last_number = startNumber || counter.start_number - counter.increment;
+    counter.last_number = startNumber !== undefined && startNumber !== null ? startNumber : counter.start_number - counter.increment;
     counter.current_year = new Date().getFullYear();
     
     return counter.save();
@@ -389,19 +389,20 @@ export class CountersService {
 
   /**
    * Génère un code client de 3 lettres
+   * Génère d'abord (last_number=0 → 'AAA'), puis incrémente.
    */
   async getNextCustomerCode(): Promise<string> {
-    const counter = await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec();
-    
+    let counter = await this.counterModel.findOne({ counter_type: 'CUSTOMER' }).exec();
+
     if (!counter) {
-      const newCounter = await this.initializeCounter('CUSTOMER');
-      return this.generateCustomerCode(newCounter.last_number + newCounter.increment);
+      counter = await this.initializeCounter('CUSTOMER');
     }
 
-    // Incrémenter le compteur
+    // Générer depuis la valeur courante (0 → 'AAA', 1 → 'AAB', …)
+    const code = this.generateCustomerCode(counter.last_number);
     counter.last_number += counter.increment;
     await counter.save();
 
-    return this.generateCustomerCode(counter.last_number);
+    return code;
   }
 }
