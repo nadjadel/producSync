@@ -23,10 +23,11 @@ export default function Orders() {
     queryFn: () => base44.entities.Customer.list() 
   });
   
-  const { data: products = [] } = useQuery({ 
-    queryKey: ['products'], 
-    queryFn: () => base44.entities.Product.list() 
+  const { data: productsResponse } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
   });
+  const products = productsResponse?.data ?? [];
 
   // Utiliser le hook d'actions
   const {
