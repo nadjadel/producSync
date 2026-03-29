@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import QuoteForm from '@/components/quotes/QuoteForm';
+import { useQuoteActions } from '@/components/quotes/hooks/useQuoteActions';
 
 const STATUS_CONFIG = {
   draft:    { label: 'Brouillon', class: 'bg-slate-100 text-slate-700' },
@@ -77,28 +78,19 @@ export default function QuoteDetails() {
     }
   });
 
-  const convertToOrderMutation = useMutation({
-    mutationFn: async () => {
-      // This would be implemented similarly to the convertToOrder function in Quotes.jsx
-      // For now, just update the status
-      return base44.entities.Quote.update(id, { status: 'accepted' });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quote', id] });
-      toast.success('Devis converti en commande');
-    },
-    onError: (error) => {
-      toast.error(`Erreur lors de la conversion: ${error.message}`);
-    }
-  });
+  const { convertToOrderMutation } = useQuoteActions();
 
   const handleStatusChange = (newStatus) => {
     updateStatusMutation.mutate({ id, status: newStatus });
   };
 
   const handleConvertToOrder = () => {
-    if (confirm('Convertir ce devis en commande ? Cette action créera une nouvelle commande.')) {
-      convertToOrderMutation.mutate();
+    if (confirm('Convertir ce devis en commande ? Cette action créera une nouvelle commande et les OF associés.')) {
+      convertToOrderMutation.mutate(quote, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['quote', id] });
+        }
+      });
     }
   };
 
