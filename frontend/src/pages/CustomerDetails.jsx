@@ -65,25 +65,25 @@ export default function CustomerDetails() {
   // Fetch related documents
   const { data: quotes = [], isLoading: isLoadingQuotes } = useQuery({
     queryKey: ['quotes', id],
-    queryFn: () => base44.entities.Quote.filter({ customer_id: id }),
+    queryFn: () => base44.entities.Quote.filter({ customerId: id }),
     enabled: !!id,
   });
 
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ['orders', id],
-    queryFn: () => base44.entities.Order.filter({ customer_id: id }),
+    queryFn: () => base44.entities.Order.filter({ customerId: id }),
     enabled: !!id,
   });
 
   const { data: invoices = [], isLoading: isLoadingInvoices } = useQuery({
     queryKey: ['invoices', id],
-    queryFn: () => base44.entities.Invoice.filter({ customer_id: id }),
+    queryFn: () => base44.entities.Invoice.filter({ customerId: id }),
     enabled: !!id,
   });
 
   const { data: deliveryNotes = [], isLoading: isLoadingDeliveryNotes } = useQuery({
     queryKey: ['deliveryNotes', id],
-    queryFn: () => base44.entities.DeliveryNote.filter({ customer_id: id }),
+    queryFn: () => base44.entities.DeliveryNote.filter({ customerId: id }),
     enabled: !!id,
   });
 
