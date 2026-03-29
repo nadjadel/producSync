@@ -156,19 +156,27 @@ export default function OrderForm({ open, onOpenChange, order, onSave, products,
               />
             </div>
             <div className="space-y-2">
-              <Label>Produit *</Label>
-              <Select value={formData.product_id} onValueChange={handleProductChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un produit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {products.map(p => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.reference} - {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Produit</Label>
+              {order ? (
+                <Input
+                  value={formData.product_name || formData.product_id || '—'}
+                  readOnly
+                  className="bg-slate-50 text-slate-700 cursor-default"
+                />
+              ) : (
+                <Select value={formData.product_id} onValueChange={handleProductChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un produit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Array.isArray(products) ? products : []).map(p => (
+                      <SelectItem key={p.id || p._id} value={p.id || p._id}>
+                        {p.reference} - {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 

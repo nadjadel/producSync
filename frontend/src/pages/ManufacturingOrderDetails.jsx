@@ -154,7 +154,9 @@ export default function ManufacturingOrderDetails() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">{mo.order_number}</h1>
-              <p className="text-slate-500 text-sm">{mo.product_name}</p>
+              <p className="text-slate-500 text-sm">
+                {product ? `${product.reference} — ${product.name}` : (mo.product_name || '—')}
+              </p>
             </div>
           </div>
           <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
@@ -217,10 +219,10 @@ export default function ManufacturingOrderDetails() {
                     <dt className="text-slate-400 text-xs uppercase tracking-wide mb-1">Produit</dt>
                     <dd className="font-medium text-slate-800">
                       {product ? (
-                        <Link to={`/products/${mo.product_id}`} className="hover:text-blue-600 hover:underline">
+                        <Link to={`/products/${product._id || product.id}`} className="hover:text-blue-600 hover:underline">
                           {product.reference} — {product.name}
                         </Link>
-                      ) : mo.product_name}
+                      ) : (mo.product_name || mo.product_id || '—')}
                     </dd>
                   </div>
                   <div>
