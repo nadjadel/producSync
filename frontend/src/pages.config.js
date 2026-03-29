@@ -2,6 +2,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import ManufacturingOrders from './pages/ManufacturingOrders';
+import ManufacturingOrderDetails from './pages/ManufacturingOrderDetails';
 import Workstations from './pages/Workstations';
 import Stock from './pages/Stock';
 import Customers from './pages/Customers';
@@ -28,6 +29,7 @@ export const PAGES = {
     "Products": Products,
     "ProductDetails": ProductDetails,
     "ManufacturingOrders": ManufacturingOrders,
+    "ManufacturingOrderDetails": ManufacturingOrderDetails,
     "Workstations": Workstations,
     "Stock": Stock,
     "Customers": Customers,
