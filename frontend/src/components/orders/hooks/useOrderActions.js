@@ -7,28 +7,9 @@ export const useOrderActions = () => {
 
   // Mutation pour créer une commande avec génération automatique des OF
   const createMutation = useMutation({
-    mutationFn: async (data) => {
-      const createdOrder = await base44.entities.Order.create(data);
-      
-      // Générer des ordres de fabrication pour chaque ligne (numéro OF généré par le backend)
-      const ofPromises = data.items.map(item =>
-        base44.entities.ManufacturingOrder.create({
-          customer_order_id: createdOrder.id,
-          customer_order_number: createdOrder.order_number,
-          product_id: item.product_id,
-          product_name: item.product_name,
-          quantity_planned: item.quantity,
-          quantity_produced: 0,
-          status: 'draft',
-          priority: 'medium',
-          ready_for_delivery: false,
-          delivered: false,
-        })
-      );
-      
-      await Promise.all(ofPromises);
-      return createdOrder;
-    },
+    mutationFn: (data) => base44.entities.Order.create(data),
+    // Les OF sont générés automatiquement côté backend (orders.service.ts)
+    // Ne pas en créer ici pour éviter la duplication
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['manufacturing-orders'] });
