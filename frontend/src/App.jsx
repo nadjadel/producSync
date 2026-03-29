@@ -162,6 +162,23 @@ function App() {
               );
             }
             
+            // Pour ManufacturingOrderDetails, route avec paramètre id
+            if (name === 'ManufacturingOrderDetails') {
+              return (
+                <Route
+                  key={name}
+                  path="/manufacturing-orders/:id"
+                  element={
+                    <ProtectedRoute>
+                      <LayoutWrapper currentPageName={name}>
+                        <Page />
+                      </LayoutWrapper>
+                    </ProtectedRoute>
+                  }
+                />
+              );
+            }
+
             // Pour SupplierDetails, route avec paramètre id
             if (name === 'SupplierDetails') {
               return (

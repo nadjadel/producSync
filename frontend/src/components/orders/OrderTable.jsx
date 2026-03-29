@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Pencil, Trash2, Play, CheckCircle, XCircle, ArrowRightLeft } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Play, CheckCircle, XCircle, ArrowRightLeft, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -54,7 +55,12 @@ export default function OrderTable({ orders, onEdit, onDelete, onStatusChange })
                 <TableRow key={order.id} className="hover:bg-slate-50/50">
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      {order.order_number}
+                      <Link
+                        to={`/manufacturing-orders/${order.id || order._id}`}
+                        className="hover:text-blue-600 hover:underline"
+                      >
+                        {order.order_number}
+                      </Link>
                       {order.is_subcontracted && (
                         <span title={`Sous-traitance: ${order.supplier_name || '?'}`}>
                           <ArrowRightLeft className="w-3.5 h-3.5 text-amber-500" />
@@ -97,6 +103,11 @@ export default function OrderTable({ orders, onEdit, onDelete, onStatusChange })
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/manufacturing-orders/${order.id || order._id}`} className="flex items-center">
+                            <Eye className="w-4 h-4 mr-2" /> Voir détails
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onEdit(order)}>
                           <Pencil className="w-4 h-4 mr-2" />
                           Modifier
