@@ -205,7 +205,7 @@ export class CountersService {
     const customerPrefix = 'CUS'; // À remplacer par les 3 lettres du client
     const productNumber = number.toString().padStart(8, '0');
     
-    return `${customerPrefix}+${productNumber}`;
+    return `${customerPrefix}${productNumber}`;
   }
 
   /**
@@ -384,7 +384,7 @@ export class CountersService {
     await counter.save();
 
     const productNumber = counter.last_number.toString().padStart(8, '0');
-    return `${customerPrefix}+${productNumber}`;
+    return `${customerPrefix}${productNumber}`;
   }
 
   /**
