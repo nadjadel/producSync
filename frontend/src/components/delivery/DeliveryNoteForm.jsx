@@ -26,10 +26,12 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
       return acc;
     }, {});
 
+  const ofId = (of) => of._id || of.id;
+
   const handleToggleOF = (of) => {
     setSelectedOFs(prev =>
-      prev.find(item => item.id === of.id)
-        ? prev.filter(item => item.id !== of.id)
+      prev.find(item => ofId(item) === ofId(of))
+        ? prev.filter(item => ofId(item) !== ofId(of))
         : [...prev, of]
     );
   };
@@ -48,7 +50,7 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
       delivery_date: formData.delivery_date,
       status: 'draft',
       items: selectedOFs.map(of => ({
-        manufacturing_order_id: of.id,
+        manufacturing_order_id: of._id || of.id,
         order_number: of.order_number,
         product_id: of.product_id,
         product_name: of.product_name,
@@ -82,9 +84,9 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
                     <div className="font-semibold text-slate-900">Commande: {group.customer_order_number}</div>
                     <div className="space-y-2">
                       {group.ofs.map(of => {
-                        const isSelected = !!selectedOFs.find(item => item.id === of.id);
+                        const isSelected = !!selectedOFs.find(item => ofId(item) === ofId(of));
                         return (
-                          <div key={of.id}
+                          <div key={ofId(of)}
                             className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 cursor-pointer"
                             onClick={() => handleToggleOF(of)}>
                             <div className="flex items-center gap-3">
