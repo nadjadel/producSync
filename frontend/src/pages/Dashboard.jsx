@@ -10,10 +10,11 @@ import StockAlerts from '@/components/dashboard/StockAlerts';
 import WorkstationStatus from '@/components/dashboard/WorkstationStatus';
 
 export default function Dashboard() {
-  const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.Product.list(),
+  const { data: productsResponse, isLoading: loadingProducts } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
   });
+  const products = productsResponse?.data ?? [];
   const { data: orders = [], isLoading: loadingOrders } = useQuery({
     queryKey: ['manufacturing-orders'],
     queryFn: () => base44.entities.ManufacturingOrder.list('-created_at'),
