@@ -74,8 +74,7 @@ export const useQuoteActions = () => {
           quantity_produced: 0,
           status: 'draft',
           priority: 'medium',
-          ready_for_delivery: false,
-          delivered: false
+          ready_for_delivery: false
         })
       );
 
