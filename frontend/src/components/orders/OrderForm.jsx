@@ -132,6 +132,12 @@ export default function OrderForm({ open, onOpenChange, order, onSave, products,
     e.preventDefault();
     // Filtrer les propriétés MongoDB et autres champs non désirés
     const { _id, id, createdAt, updatedAt, __v, ...cleanData } = formData;
+
+    // Supprimer les champs date vides (chaîne vide échoue @IsDateString)
+    const DATE_FIELDS = ['planned_start', 'planned_end', 'actual_start', 'actual_end',
+      'subcontract_sent_date', 'subcontract_expected_date'];
+    DATE_FIELDS.forEach(f => { if (cleanData[f] === '' || cleanData[f] == null) delete cleanData[f]; });
+
     onSave(cleanData);
   };
 
@@ -159,7 +165,13 @@ export default function OrderForm({ open, onOpenChange, order, onSave, products,
               <Label>Produit</Label>
               {order ? (
                 <Input
-                  value={formData.product_name || formData.product_id || '—'}
+                  value={(() => {
+                    if (formData.product_name) return formData.product_name;
+                    // fallback : chercher dans la liste par product_id
+                    const found = (Array.isArray(products) ? products : [])
+                      .find(p => (p._id || p.id) === formData.product_id);
+                    return found ? `${found.reference} - ${found.name}` : (formData.product_id || '—');
+                  })()}
                   readOnly
                   className="bg-slate-50 text-slate-700 cursor-default"
                 />
