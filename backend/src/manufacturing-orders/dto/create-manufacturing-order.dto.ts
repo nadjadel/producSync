@@ -62,6 +62,22 @@ export class CreateManufacturingOrderDto {
 
   @IsOptional()
   @IsBoolean()
+  delivered?: boolean;
+
+  @IsOptional()
+  @IsString()
+  delivery_note_id?: string;
+
+  @IsOptional()
+  @IsDateString()
+  actual_start?: string;
+
+  @IsOptional()
+  @IsDateString()
+  actual_end?: string;
+
+  @IsOptional()
+  @IsBoolean()
   is_subcontracted?: boolean;
 
   @IsOptional()
