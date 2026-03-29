@@ -58,7 +58,7 @@ export default function Orders() {
             customer_name: prefilledData.customer_name || '',
             status: prefilledData.status || 'draft',
             order_date: prefilledData.order_date || new Date().toISOString().split('T')[0],
-            expected_delivery_date: prefilledData.expected_delivery_date || '',
+            delivery_date_requested: prefilledData.delivery_date_requested || '',
             items: prefilledData.items || [],
             notes: prefilledData.notes || '',
           });

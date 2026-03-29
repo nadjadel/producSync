@@ -151,7 +151,7 @@ export default function CustomerDetails() {
           customer_id: id,
           customer_name: customer.company_name,
           status: 'draft',
-          expected_delivery_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          delivery_date_requested: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         });
         setOrderModalOpen(true);
         break;
@@ -614,7 +614,7 @@ export default function CustomerDetails() {
                                   {order.created_date ? new Date(order.created_date).toLocaleDateString('fr-FR') : '-'}
                                 </TableCell>
                                 <TableCell>
-                                  {order.expected_delivery_date ? new Date(order.expected_delivery_date).toLocaleDateString('fr-FR') : '-'}
+                                  {order.delivery_date_requested ? new Date(order.delivery_date_requested).toLocaleDateString('fr-FR') : '-'}
                                 </TableCell>
                                 <TableCell>
                                   <div className="text-sm">
