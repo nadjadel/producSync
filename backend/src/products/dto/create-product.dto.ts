@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsArray, IsBoolean, ValidateNested, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class BomItemDto {
@@ -62,6 +62,14 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   image_url?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+
+  @IsOptional()
+  @IsEnum(['active', 'inactive', 'archived'])
+  status?: string;
 
   @IsOptional()
   @IsArray()
