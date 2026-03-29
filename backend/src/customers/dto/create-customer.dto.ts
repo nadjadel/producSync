@@ -1,10 +1,11 @@
 import { IsString, IsEmail, IsOptional, IsEnum, MinLength, MaxLength } from 'class-validator';
 
 export class CreateCustomerDto {
+  @IsOptional()
   @IsString()
   @MinLength(3)
   @MaxLength(3)
-  code: string;
+  code?: string;
 
   @IsString()
   @MinLength(2)
