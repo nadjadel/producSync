@@ -168,7 +168,8 @@ export default function TaskRoutines() {
 
   const { data: routines = [], isLoading } = useQuery({ queryKey: ['task-routines'], queryFn: () => base44.entities.TaskRoutine.list() });
   const { data: workstations = [] } = useQuery({ queryKey: ['workstations'], queryFn: () => base44.entities.Workstation.list() });
-  const { data: products = [] } = useQuery({ queryKey: ['products'], queryFn: () => base44.entities.Product.list() });
+  const { data: productsResponse } = useQuery({ queryKey: ['products', { limit: 9999 }], queryFn: () => base44.entities.Product.filter({ limit: 9999 }) });
+  const products = productsResponse?.data ?? [];
 
   const createMutation = useMutation({ mutationFn: (data) => base44.entities.TaskRoutine.create(data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['task-routines'] }); toast.success('Gamme créée'); setFormOpen(false); } });
   const updateMutation = useMutation({ mutationFn: ({ id, data }) => base44.entities.TaskRoutine.update(id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['task-routines'] }); toast.success('Gamme mise à jour'); setFormOpen(false); setEditingRoutine(null); } });

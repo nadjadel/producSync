@@ -31,10 +31,11 @@ export default function Stock() {
   const [movementForm, setMovementForm] = useState({ movement_type: 'in', quantity: 0, reference: '', notes: '' });
   const queryClient = useQueryClient();
 
-  const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.Product.list(),
+  const { data: productsResponse, isLoading: loadingProducts } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
   });
+  const products = productsResponse?.data ?? [];
   const { data: movements = [], isLoading: loadingMovements } = useQuery({
     queryKey: ['stock-movements'],
     queryFn: () => base44.entities.StockMovement.list('-created_at'),

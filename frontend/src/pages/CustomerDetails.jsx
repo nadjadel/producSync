@@ -87,11 +87,12 @@ export default function CustomerDetails() {
     enabled: !!id,
   });
 
-  const { data: products = [], isLoading: isLoadingProducts } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.Product.list(),
+  const { data: productsResponse, isLoading: isLoadingProducts } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
     enabled: !!id,
   });
+  const products = productsResponse?.data ?? [];
 
   // Mutations for creating documents
   const createQuoteMutation = useMutation({

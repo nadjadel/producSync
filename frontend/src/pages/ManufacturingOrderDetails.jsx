@@ -74,10 +74,11 @@ export default function ManufacturingOrderDetails() {
     queryKey: ['workstations'],
     queryFn: () => base44.entities.Workstation.list(),
   });
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.Product.list(),
+  const { data: productsResponse } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
   });
+  const products = productsResponse?.data ?? [];
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => base44.entities.DeliveryNote.list(), // réutilise la liste existante
