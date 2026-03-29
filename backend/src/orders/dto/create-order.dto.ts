@@ -35,6 +35,10 @@ export class CreateOrderDto {
   customer_name: string;
 
   @IsOptional()
+  @IsString()
+  customer_code?: string;
+
+  @IsOptional()
   @IsEnum(['draft', 'confirmed', 'in_production', 'ready', 'delivered', 'cancelled'])
   status?: string;
 
