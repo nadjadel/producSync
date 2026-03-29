@@ -39,6 +39,10 @@ export class CreateQuoteDto {
   customer_name: string;
 
   @IsOptional()
+  @IsString()
+  customer_code?: string;
+
+  @IsOptional()
   @IsEnum(['draft', 'sent', 'accepted', 'rejected', 'expired'])
   status?: string;
 
