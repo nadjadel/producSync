@@ -46,13 +46,28 @@ export class ProductsService {
     return product.save();
   }
 
-  async findAll(category?: string, customerId?: string, limit?: number): Promise<ProductDocument[]> {
+  async findAll(
+    category?: string,
+    customerId?: string,
+    limit = 50,
+    page = 1,
+    search?: string,
+  ): Promise<{ data: ProductDocument[]; total: number; page: number; limit: number; pages: number }> {
     const filter: any = {};
     if (category) filter.category = category;
     if (customerId) filter.customer_id = customerId;
-    const query = this.productModel.find(filter).sort({ reference: 1 });
-    if (limit) query.limit(limit);
-    return query.exec();
+    if (search) {
+      const re = new RegExp(search, 'i');
+      filter.$or = [{ reference: re }, { name: re }, { customer_code: re }];
+    }
+
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.productModel.find(filter).sort({ reference: 1 }).skip(skip).limit(limit).exec(),
+      this.productModel.countDocuments(filter).exec(),
+    ]);
+
+    return { data, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   async findOne(id: string): Promise<ProductDocument> {

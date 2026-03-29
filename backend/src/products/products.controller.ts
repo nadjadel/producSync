@@ -18,8 +18,16 @@ export class ProductsController {
     @Query('category') category?: string,
     @Query('customerId') customerId?: string,
     @Query('limit') limit?: string,
+    @Query('page') page?: string,
+    @Query('q') search?: string,
   ) {
-    return this.productsService.findAll(category, customerId, limit ? parseInt(limit, 10) : undefined);
+    return this.productsService.findAll(
+      category,
+      customerId,
+      limit ? parseInt(limit, 10) : 50,
+      page  ? parseInt(page,  10) : 1,
+      search,
+    );
   }
 
   @Get('search')

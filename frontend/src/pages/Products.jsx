@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -6,41 +6,56 @@ import { Plus } from "lucide-react";
 import ProductForm from '@/components/products/ProductForm';
 import ProductList from '@/components/products/ProductList';
 import { useProductActions } from '@/components/products/hooks/useProductActions';
+import { useDebounce } from '@/hooks/useDebounce';
+
+const PAGE_SIZE = 50;
 
 export default function Products() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm]       = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [formOpen, setFormOpen] = useState(false);
+  const [page, setPage]                   = useState(1);
+  const [formOpen, setFormOpen]           = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.Product.list(),
+  // Debounce la recherche pour éviter trop de requêtes
+  const debouncedSearch = useDebounce(searchTerm, 350);
+
+  // Remettre à la page 1 quand les filtres changent
+  const handleSearch = (v) => { setSearchTerm(v); setPage(1); };
+  const handleCategory = (v) => { setCategoryFilter(v); setPage(1); };
+
+  const queryParams = {
+    page,
+    limit: PAGE_SIZE,
+    ...(debouncedSearch && { q: debouncedSearch }),
+    ...(categoryFilter !== 'all' && { category: categoryFilter }),
+  };
+
+  const { data: response = { data: [], total: 0, pages: 1 }, isLoading, isFetching } = useQuery({
+    queryKey: ['products', queryParams],
+    queryFn: () => base44.entities.Product.filter(queryParams),
+    keepPreviousData: true,   // affiche la page précédente pendant le chargement
   });
-  
+
+  const products = response.data  ?? [];
+  const total    = response.total ?? 0;
+  const pages    = response.pages ?? 1;
+
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
   });
 
-  // Utiliser le hook d'actions
-  const {
-    createMutation,
-    updateMutation,
-    deleteProduct,
-    isLoading: actionsLoading
-  } = useProductActions();
+  const { createMutation, updateMutation, deleteProduct, isLoading: actionsLoading } = useProductActions();
 
-  // Check for prefilled data from customer details page
+  // Prefill depuis CustomerDetails
   React.useEffect(() => {
     const keys = Object.keys(sessionStorage);
-    const productKey = keys.find(key => key.startsWith('prefilled_product_'));
-
+    const productKey = keys.find(k => k.startsWith('prefilled_product_'));
     if (productKey) {
       try {
         const prefilledData = JSON.parse(sessionStorage.getItem(productKey));
-
         if (prefilledData) {
           setEditingProduct({
             ...prefilledData,
@@ -57,8 +72,7 @@ export default function Products() {
           setFormOpen(true);
           sessionStorage.removeItem(productKey);
         }
-      } catch (error) {
-        console.error('Error parsing prefilled product data:', error);
+      } catch {
         sessionStorage.removeItem(productKey);
       }
     }
@@ -67,23 +81,13 @@ export default function Products() {
   const handleSave = (data) => {
     if (editingProduct) {
       updateMutation.mutate({ id: editingProduct.id || editingProduct._id, data }, {
-        onSuccess: () => {
-          setFormOpen(false);
-          setEditingProduct(null);
-        }
+        onSuccess: () => { setFormOpen(false); setEditingProduct(null); queryClient.invalidateQueries({ queryKey: ['products'] }); }
       });
     } else {
       createMutation.mutate(data, {
-        onSuccess: () => {
-          setFormOpen(false);
-        }
+        onSuccess: () => { setFormOpen(false); queryClient.invalidateQueries({ queryKey: ['products'] }); }
       });
     }
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setFormOpen(true);
   };
 
   return (
@@ -92,13 +96,12 @@ export default function Products() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Produits</h1>
-            <p className="text-slate-500 mt-1">Gérez votre catalogue de produits</p>
+            <p className="text-slate-500 mt-1">
+              {total > 0 ? `${total.toLocaleString('fr-FR')} produits au total` : 'Gérez votre catalogue'}
+            </p>
           </div>
-          <Button 
-            onClick={() => { 
-              setEditingProduct(null); 
-              setFormOpen(true); 
-            }} 
+          <Button
+            onClick={() => { setEditingProduct(null); setFormOpen(true); }}
             className="bg-slate-900 hover:bg-slate-800"
             disabled={actionsLoading}
           >
@@ -106,25 +109,32 @@ export default function Products() {
           </Button>
         </div>
 
-        <ProductList 
+        <ProductList
           products={products}
           isLoading={isLoading}
+          isFetching={isFetching}
           searchTerm={searchTerm}
           categoryFilter={categoryFilter}
-          onSearchChange={setSearchTerm}
-          onCategoryFilterChange={setCategoryFilter}
-          onEdit={handleEdit}
+          onSearchChange={handleSearch}
+          onCategoryFilterChange={handleCategory}
+          onEdit={(p) => { setEditingProduct(p); setFormOpen(true); }}
           onDelete={deleteProduct}
           showFilters={true}
+          // pagination
+          page={page}
+          pages={pages}
+          total={total}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
         />
 
-        <ProductForm 
-          open={formOpen} 
-          onOpenChange={setFormOpen} 
-          product={editingProduct} 
-          onSave={handleSave} 
-          allProducts={products} 
-          customers={customers} 
+        <ProductForm
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          product={editingProduct}
+          onSave={handleSave}
+          allProducts={products}
+          customers={customers}
         />
       </div>
     </div>
