@@ -72,12 +72,10 @@ export default function Layout({ children, currentPageName }) {
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100">
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
-                <Factory className="w-5 h-5 text-white" />
-              </div>
+              <img src="/logo.png" alt="CTSM" className="w-10 h-10 rounded-full object-cover" />
               <div>
-                <span className="text-lg font-bold text-slate-900 tracking-tight">GPAO</span>
-                <p className="text-xs text-slate-400">Production Manager</p>
+                <span className="text-lg font-bold text-slate-900 tracking-tight">CTSM</span>
+                <p className="text-xs text-slate-400">Tôlerie fine de précision</p>
               </div>
             </Link>
             <Button 

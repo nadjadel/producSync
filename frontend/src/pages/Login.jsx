@@ -44,12 +44,10 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-2xl border-slate-200">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center">
-              <Factory className="w-8 h-8 text-white" />
-            </div>
+            <img src="/logo.png" alt="CTSM" className="w-20 h-20 rounded-full object-cover shadow-md" />
           </div>
           <CardTitle className="text-2xl font-bold text-center text-slate-900">
-            Connexion à ProducSync
+            Connexion à CTSM
           </CardTitle>
           <CardDescription className="text-center text-slate-500">
             Entrez vos identifiants pour accéder à votre espace de production
@@ -114,7 +112,7 @@ export default function Login() {
           </div>
           <div className="w-full border-t border-slate-200 pt-4">
             <p className="text-xs text-center text-slate-400">
-              © 2024 ProducSync - Système de gestion de production
+              © 2024 CTSM - Tôlerie fine de précision
             </p>
           </div>
         </CardFooter>
