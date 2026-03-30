@@ -32,13 +32,18 @@ export default function DeliveryNotes() {
     queryKey: ['manufacturing-orders'],
     queryFn: () => base44.entities.ManufacturingOrder.list(),
   });
-  // list() peut retourner { data: [...] } ou un tableau plat selon l'endpoint
   const manufacturingOrders = Array.isArray(manufacturingOrdersRaw)
     ? manufacturingOrdersRaw
     : (manufacturingOrdersRaw?.data ?? []);
+
   const { data: customers = [] } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
+  });
+
+  const { data: orders = [] } = useQuery({
+    queryKey: ['orders'],
+    queryFn: () => base44.entities.Order.list('-created_at'),
   });
 
   // Check for prefilled data from customer details page
@@ -178,7 +183,7 @@ export default function DeliveryNotes() {
 
         <DeliveryNoteForm open={formOpen} onOpenChange={setFormOpen}
           onSave={(deliveryNote, selectedOFs) => createMutation.mutate({ deliveryNote, selectedOFs })}
-          manufacturingOrders={manufacturingOrders} customers={customers} />
+          manufacturingOrders={manufacturingOrders} customers={customers} orders={orders} />
       </div>
     </div>
   );
