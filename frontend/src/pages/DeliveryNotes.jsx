@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, MoreVertical, Trash2, FileText, CheckCircle } from "lucide-react";
+import { Plus, Search, MoreVertical, Trash2, FileText, CheckCircle, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -23,6 +24,7 @@ export default function DeliveryNotes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: deliveryNotes = [], isLoading } = useQuery({
     queryKey: ['delivery-notes'],
@@ -161,12 +163,15 @@ export default function DeliveryNotes() {
                               <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => navigate(`/delivery-notes/${dn._id || dn.id}`)}>
+                                <Eye className="w-4 h-4 mr-2" /> Voir détails
+                              </DropdownMenuItem>
                               {dn.status === 'draft' && (
-                                <DropdownMenuItem onClick={() => markAsSentMutation.mutate(dn.id)}>
+                                <DropdownMenuItem onClick={() => markAsSentMutation.mutate(dn._id || dn.id)}>
                                   <CheckCircle className="w-4 h-4 mr-2" /> Marquer envoyé
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem onClick={() => { if (confirm(`Supprimer le BL "${dn.delivery_number}" ?`)) deleteMutation.mutate(dn.id); }} className="text-red-600">
+                              <DropdownMenuItem onClick={() => { if (confirm(`Supprimer le BL "${dn.delivery_number}" ?`)) deleteMutation.mutate(dn._id || dn.id); }} className="text-red-600">
                                 <Trash2 className="w-4 h-4 mr-2" /> Supprimer
                               </DropdownMenuItem>
                             </DropdownMenuContent>
