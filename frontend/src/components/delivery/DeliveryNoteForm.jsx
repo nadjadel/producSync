@@ -179,8 +179,8 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
                         <div className="flex items-center gap-3">
                           <Checkbox
                             checked={isSelected}
-                            onClick={(e) => e.stopPropagation()}
-                            onCheckedChange={() => handleToggleOF(of)}
+                            onCheckedChange={() => {}}
+                            aria-label="Sélectionner cet OF"
                           />
                           <div>
                             <p className="font-medium text-slate-900">{of.order_number}</p>
