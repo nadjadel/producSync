@@ -75,7 +75,9 @@ export default function Stock() {
   );
 
   const lowStockProducts = products.filter(p =>
-    p.stock_quantity !== undefined && p.stock_minimum !== undefined && p.stock_quantity <= p.stock_minimum
+    p.category === 'matiere_premiere'
+    && p.stock_quantity !== undefined && p.stock_minimum !== undefined
+    && p.stock_quantity <= p.stock_minimum
   );
 
   return (
@@ -138,7 +140,9 @@ export default function Stock() {
                     {filteredProducts.length === 0 ? (
                       <TableRow><TableCell colSpan={6} className="text-center py-12 text-slate-400">Aucun produit trouvé</TableCell></TableRow>
                     ) : filteredProducts.map((product) => {
-                      const isLow = product.stock_quantity !== undefined && product.stock_minimum !== undefined && product.stock_quantity <= product.stock_minimum;
+                      const isLow = product.category === 'matiere_premiere'
+                        && product.stock_quantity !== undefined && product.stock_minimum !== undefined
+                        && product.stock_quantity <= product.stock_minimum;
                       return (
                         <TableRow key={product.id} className="hover:bg-slate-50/50">
                           <TableCell className="font-medium text-slate-600">{product.reference}</TableCell>
