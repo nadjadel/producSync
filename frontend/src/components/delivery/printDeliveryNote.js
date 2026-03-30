@@ -226,8 +226,9 @@ export function printDeliveryNote(deliveryNote, customer, products = []) {
   <!-- En-tête -->
   <div class="header">
     <div>
-      <div class="company-name">ProducSync</div>
-      <div class="company-sub">Gestion de production</div>
+      <img src="/logo.png" alt="CTSM" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:4px" />
+      <div class="company-name">CTSM</div>
+      <div class="company-sub">Tôlerie fine de précision</div>
     </div>
     <div class="doc-title">
       <h1>Bon de livraison</h1>
@@ -303,7 +304,7 @@ export function printDeliveryNote(deliveryNote, customer, products = []) {
   </div>
 
   <div class="footer">
-    Document généré par ProducSync — ${new Date().toLocaleDateString('fr-FR')}
+    Document généré par CTSM — ${new Date().toLocaleDateString('fr-FR')}
   </div>
 
   <script>
