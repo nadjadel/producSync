@@ -45,6 +45,25 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
     }
   };
 
+  // Tous les OFs prêts à livrer (non encore livrés)
+  const readyOFs = manufacturingOrders.filter(of => of.ready_for_delivery && !of.delivered);
+
+  // IDs de commandes ayant au moins un OF prêt
+  const readyOrderIds = new Set(readyOFs.map(of => of.customer_order_id).filter(Boolean));
+
+  // customer_id des commandes ayant au moins un OF prêt
+  const customerIdsWithReadyOFs = new Set(
+    orders
+      .filter(o => readyOrderIds.has(o._id || o.id))
+      .map(o => o.customer_id)
+      .filter(Boolean)
+  );
+
+  // Clients ayant au moins un OF prêt
+  const customersWithReadyOFs = customers.filter(c =>
+    customerIdsWithReadyOFs.has(c._id || c.id)
+  );
+
   // IDs des commandes du client sélectionné
   const customerOrderIds = new Set(
     orders
@@ -53,9 +72,7 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
   );
 
   // OFs disponibles : prêts, non livrés, appartenant au client sélectionné
-  const availableOFs = manufacturingOrders.filter(of =>
-    of.ready_for_delivery && !of.delivered && customerOrderIds.has(of.customer_order_id)
-  );
+  const availableOFs = readyOFs.filter(of => customerOrderIds.has(of.customer_order_id));
 
   const ofId = (of) => of._id || of.id;
 
@@ -115,12 +132,17 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
           {/* 1. Sélection du client */}
           <div className="space-y-2">
             <Label>Client *</Label>
-            <Select value={selectedCustomerId} onValueChange={handleCustomerChange}>
+            <Select value={selectedCustomerId} onValueChange={handleCustomerChange}
+              disabled={customersWithReadyOFs.length === 0}>
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un client…" />
+                <SelectValue placeholder={
+                  customersWithReadyOFs.length === 0
+                    ? 'Aucun client avec OF prêt à livrer'
+                    : 'Sélectionner un client…'
+                } />
               </SelectTrigger>
               <SelectContent>
-                {customers.map(c => (
+                {customersWithReadyOFs.map(c => (
                   <SelectItem key={c._id || c.id} value={c._id || c.id}>
                     {c.company_name}
                   </SelectItem>
