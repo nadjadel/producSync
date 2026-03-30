@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
 export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufacturingOrders = [], customers = [], orders = [] }) {
@@ -177,11 +176,17 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
                         className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 cursor-pointer"
                         onClick={() => handleToggleOF(of)}>
                         <div className="flex items-center gap-3">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => {}}
-                            aria-label="Sélectionner cet OF"
-                          />
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'bg-slate-900 border-slate-900'
+                              : 'bg-white border-slate-300'
+                          }`}>
+                            {isSelected && (
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
                           <div>
                             <p className="font-medium text-slate-900">{of.order_number}</p>
                             <p className="text-sm text-slate-500">{of.product_name}</p>
