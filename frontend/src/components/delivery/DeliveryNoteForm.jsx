@@ -95,7 +95,6 @@ export default function DeliveryNoteForm({ open, onOpenChange, onSave, manufactu
         product_reference: of.product_reference || '',
         quantity: of.quantity_produced || of.quantity_planned,
         unit_price: 0,
-        total: 0,
       })),
       delivery_address: formData.delivery_address,
       notes: formData.notes,
