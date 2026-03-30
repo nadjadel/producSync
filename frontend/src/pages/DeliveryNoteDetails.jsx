@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Truck, CheckCircle, Receipt, Building, MapPin, Package } from "lucide-react";
+import { ArrowLeft, Truck, CheckCircle, Building, MapPin, Package, Printer } from "lucide-react";
+import { printDeliveryNote } from '@/components/delivery/printDeliveryNote';
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -110,6 +111,13 @@ export default function DeliveryNoteDetails() {
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => printDeliveryNote(deliveryNote, customer)}
+            >
+              <Printer className="w-4 h-4 mr-2" />
+              Exporter PDF
+            </Button>
             {deliveryNote.status === 'draft' && (
               <Button
                 onClick={() => markSentMutation.mutate()}
