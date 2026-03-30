@@ -5,7 +5,9 @@ import { createPageUrl } from "@/utils";
 
 export default function StockAlerts({ products = [] }) {
   const lowStockProducts = products.filter(
-    p => p.stock_quantity != null && p.stock_minimum != null && p.stock_quantity <= p.stock_minimum
+    p => p.category === 'matiere_premiere'
+      && p.stock_quantity != null && p.stock_minimum != null
+      && p.stock_quantity <= p.stock_minimum
   );
 
   return (
