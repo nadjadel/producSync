@@ -2,7 +2,7 @@
  * Ouvre une fenêtre d'impression formatée comme un bon de livraison professionnel.
  * L'utilisateur peut ensuite "Enregistrer en PDF" depuis la boîte de dialogue d'impression.
  */
-export function printDeliveryNote(deliveryNote, customer) {
+export function printDeliveryNote(deliveryNote, customer, products = []) {
   const items = deliveryNote.items || [];
 
   const formatDate = (dateStr) => {
@@ -13,7 +13,7 @@ export function printDeliveryNote(deliveryNote, customer) {
   };
 
   const formatPrice = (val) =>
-    val != null && val !== 0 ? Number(val).toFixed(2) + ' €' : '—';
+    val != null ? Number(val).toFixed(2) + ' €' : '—';
 
   const totalQty = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
 
@@ -23,16 +23,22 @@ export function printDeliveryNote(deliveryNote, customer) {
         ? [customer.address, [customer.postal_code, customer.city].filter(Boolean).join(' '), customer.country].filter(Boolean).join('<br>')
         : '—');
 
-  const itemsRows = items.map((item, idx) => `
+  const itemsRows = items.map((item, idx) => {
+    // Référence : priorité au champ stocké, sinon lookup dans products
+    const ref = item.product_reference
+      || products.find(p => (p._id || p.id) === item.product_id)?.reference
+      || '—';
+    return `
     <tr>
       <td>${idx + 1}</td>
       <td>${item.order_number || '—'}</td>
       <td><strong>${item.product_name || '—'}</strong></td>
-      <td>${item.product_reference || '—'}</td>
+      <td>${ref}</td>
       <td class="center">${item.quantity ?? '—'}</td>
       <td class="right">${formatPrice(item.unit_price)}</td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="fr">

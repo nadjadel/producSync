@@ -36,6 +36,12 @@ export default function DeliveryNoteDetails() {
     enabled: !!deliveryNote?.customer_id,
   });
 
+  const { data: productsResponse } = useQuery({
+    queryKey: ['products', { limit: 9999 }],
+    queryFn: () => base44.entities.Product.filter({ limit: 9999 }),
+  });
+  const products = productsResponse?.data ?? [];
+
   const markSentMutation = useMutation({
     mutationFn: () => base44.entities.DeliveryNote.update(id, { status: 'sent' }),
     onSuccess: () => {
@@ -113,7 +119,7 @@ export default function DeliveryNoteDetails() {
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
-              onClick={() => printDeliveryNote(deliveryNote, customer)}
+              onClick={() => printDeliveryNote(deliveryNote, customer, products)}
             >
               <Printer className="w-4 h-4 mr-2" />
               Exporter PDF
